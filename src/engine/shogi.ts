@@ -19,6 +19,9 @@ export type Piece = {
 
 export type Square = Piece | null;
 export type Board = Square[][];
+export type HandPieceType = Exclude<PieceType, 'king'>;
+export type Hand = Record<HandPieceType, number>;
+export type Hands = Record<Player, Hand>;
 
 export type Position = {
   row: number;
@@ -28,6 +31,7 @@ export type Position = {
 export type GameState = {
   board: Board;
   currentPlayer: Player;
+  hands: Hands;
 };
 
 export type PromotionState = 'none' | 'optional' | 'required';
@@ -115,6 +119,25 @@ function createPiece(owner: Player, type: PieceType): Piece {
   };
 }
 
+function createEmptyHand(): Hand {
+  return {
+    rook: 0,
+    bishop: 0,
+    gold: 0,
+    silver: 0,
+    knight: 0,
+    lance: 0,
+    pawn: 0,
+  };
+}
+
+export function createEmptyHands(): Hands {
+  return {
+    black: createEmptyHand(),
+    white: createEmptyHand(),
+  };
+}
+
 function createEmptyBoard(): Board {
   return Array.from({ length: BOARD_SIZE }, () =>
     Array.from({ length: BOARD_SIZE }, () => null),
@@ -143,18 +166,31 @@ export function createInitialGameState(): GameState {
   return {
     board: createInitialBoard(),
     currentPlayer: 'black',
+    hands: createEmptyHands(),
   };
 }
 
-export function createGameState(board: Board, currentPlayer: Player = 'black'): GameState {
+export function createGameState(
+  board: Board,
+  currentPlayer: Player = 'black',
+  hands: Hands = createEmptyHands(),
+): GameState {
   return {
     board,
     currentPlayer,
+    hands,
   };
 }
 
 export function cloneBoard(board: Board): Board {
   return board.map((row) => row.map((square) => (square ? { ...square } : null)));
+}
+
+function cloneHands(hands: Hands): Hands {
+  return {
+    black: { ...hands.black },
+    white: { ...hands.white },
+  };
 }
 
 function isInsideBoard(position: Position): boolean {
@@ -225,6 +261,10 @@ function applyOrientation(direction: Direction, owner: Player): Direction {
 function canOccupySquare(board: Board, owner: Player, position: Position): boolean {
   const square = board[position.row][position.col];
   return square === null || square.owner !== owner;
+}
+
+function canDropOnSquare(board: Board, position: Position): boolean {
+  return board[position.row][position.col] === null;
 }
 
 function collectStepMoves(
@@ -389,6 +429,121 @@ export function isLegalMove(state: GameState, from: Position, to: Position): boo
   );
 }
 
+function demoteCapturedPiece(piece: Piece): HandPieceType | null {
+  if (piece.type === 'king') {
+    return null;
+  }
+
+  return piece.type;
+}
+
+function addPieceToHand(hands: Hands, owner: Player, pieceType: HandPieceType): Hands {
+  const nextHands = cloneHands(hands);
+  nextHands[owner][pieceType] += 1;
+  return nextHands;
+}
+
+function removePieceFromHand(hands: Hands, owner: Player, pieceType: HandPieceType): Hands {
+  if (hands[owner][pieceType] <= 0) {
+    throw new Error('Piece not available in hand');
+  }
+
+  const nextHands = cloneHands(hands);
+  nextHands[owner][pieceType] -= 1;
+  return nextHands;
+}
+
+export function violatesNifu(state: GameState, owner: Player, col: number): boolean {
+  return state.board.some((row) => {
+    const square = row[col];
+    return square?.owner === owner && square.type === 'pawn' && square.isPromoted === false;
+  });
+}
+
+export function violatesDeadSquareDrop(
+  pieceType: HandPieceType,
+  owner: Player,
+  row: number,
+): boolean {
+  if (pieceType === 'pawn' || pieceType === 'lance') {
+    return owner === 'black' ? row === 0 : row === BOARD_SIZE - 1;
+  }
+
+  if (pieceType === 'knight') {
+    return owner === 'black' ? row <= 1 : row >= BOARD_SIZE - 2;
+  }
+
+  return false;
+}
+
+export function getDropRuleViolations(
+  state: GameState,
+  pieceType: HandPieceType,
+  to: Position,
+): string[] {
+  const violations: string[] = [];
+
+  if (!canDropOnSquare(state.board, to)) {
+    violations.push('occupied-square');
+  }
+
+  if (state.hands[state.currentPlayer][pieceType] <= 0) {
+    violations.push('piece-not-in-hand');
+  }
+
+  if (pieceType === 'pawn' && violatesNifu(state, state.currentPlayer, to.col)) {
+    violations.push('nifu');
+  }
+
+  if (violatesDeadSquareDrop(pieceType, state.currentPlayer, to.row)) {
+    violations.push('dead-square');
+  }
+
+  return violations;
+}
+
+export function getLegalDrops(state: GameState, pieceType: HandPieceType): Position[] {
+  if (state.hands[state.currentPlayer][pieceType] <= 0) {
+    return [];
+  }
+
+  const legalDrops: Position[] = [];
+
+  for (let row = 0; row < BOARD_SIZE; row += 1) {
+    for (let col = 0; col < BOARD_SIZE; col += 1) {
+      const position = { row, col };
+      if (getDropRuleViolations(state, pieceType, position).length === 0) {
+        legalDrops.push(position);
+      }
+    }
+  }
+
+  return legalDrops;
+}
+
+export function isLegalDrop(state: GameState, pieceType: HandPieceType, to: Position): boolean {
+  return getDropRuleViolations(state, pieceType, to).length === 0;
+}
+
+export function dropPiece(
+  state: GameState,
+  pieceType: HandPieceType,
+  to: Position,
+): GameState {
+  if (!isLegalDrop(state, pieceType, to)) {
+    throw new Error('Illegal drop');
+  }
+
+  const nextBoard = cloneBoard(state.board);
+  nextBoard[to.row][to.col] = createPiece(state.currentPlayer, pieceType);
+
+  return {
+    board: nextBoard,
+    currentPlayer: state.currentPlayer === 'black' ? 'white' : 'black',
+    hands: removePieceFromHand(state.hands, state.currentPlayer, pieceType),
+  };
+}
+
 export function movePiece(
   state: GameState,
   from: Position,
@@ -408,12 +563,21 @@ export function movePiece(
   const promoState = getPromotionState(piece, from.row, to.row);
   const shouldPromote =
     promoState === 'required' || (promoState === 'optional' && promote);
+  const capturedPiece = state.board[to.row][to.col];
 
   const nextBoard = cloneBoard(state.board);
   const movingPiece = nextBoard[from.row][from.col];
+  let nextHands = cloneHands(state.hands);
 
   if (!movingPiece) {
     throw new Error('No piece at source position');
+  }
+
+  if (capturedPiece && capturedPiece.owner !== state.currentPlayer) {
+    const capturedPieceType = demoteCapturedPiece(capturedPiece);
+    if (capturedPieceType) {
+      nextHands = addPieceToHand(nextHands, state.currentPlayer, capturedPieceType);
+    }
   }
 
   nextBoard[from.row][from.col] = null;
@@ -425,6 +589,7 @@ export function movePiece(
   return {
     board: nextBoard,
     currentPlayer: state.currentPlayer === 'black' ? 'white' : 'black',
+    hands: nextHands,
   };
 }
 

@@ -9,6 +9,14 @@ import {
   type Board,
   type Piece,
 } from './testUtils';
+import {
+  createEmptyHands,
+  dropPiece,
+  getLegalDrops,
+  isLegalDrop,
+  type HandPieceType,
+  type Hands,
+} from './shogi';
 
 function createPiece(
   owner: Piece['owner'],
@@ -36,6 +44,16 @@ function sortMoves(moves: Array<{ row: number; col: number }>): string[] {
     .sort();
 }
 
+function createHands(
+  owner: Piece['owner'],
+  pieceType: HandPieceType,
+  count = 1,
+): Hands {
+  const hands = createEmptyHands();
+  hands[owner][pieceType] = count;
+  return hands;
+}
+
 describe('shogi engine', () => {
   it('creates the standard starting layout', () => {
     const state = createInitialGameState();
@@ -50,6 +68,7 @@ describe('shogi engine', () => {
     expect(state.board[6].every((square) => square?.isPromoted === false)).toBe(true);
     expect(state.board[2].every((square) => square?.type === 'pawn')).toBe(true);
     expect(state.board[2].every((square) => square?.isPromoted === false)).toBe(true);
+    expect(state.hands).toEqual(createEmptyHands());
   });
 
   it('allows a black pawn to move one square forward', () => {
@@ -190,6 +209,7 @@ describe('shogi engine', () => {
     expect(nextState.board[4][4]).toBeNull();
     expect(nextState.board[3][4]).toEqual(createPiece('black', 'pawn'));
     expect(nextState.currentPlayer).toBe('white');
+    expect(nextState.hands.black.silver).toBe(1);
   });
 
   it('promotes a pawn when entering the zone with the promotion flag', () => {
@@ -293,5 +313,102 @@ describe('shogi engine', () => {
 
     expect(promotedState.board[2][4]).toEqual(createPiece('black', 'pawn', true));
     expect(unpromotedState.board[2][4]).toEqual(createPiece('black', 'pawn'));
+  });
+
+  it('demotes a captured promoted piece before adding it to hand', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('black', 'gold'), row: 4, col: 4 },
+        { piece: createPiece('white', 'pawn', true), row: 3, col: 4 },
+      ]),
+      'black',
+    );
+
+    const nextState = movePiece(state, { row: 4, col: 4 }, { row: 3, col: 4 });
+
+    expect(nextState.hands.black.pawn).toBe(1);
+    expect(nextState.hands.black.gold).toBe(0);
+  });
+
+  it('lists empty squares as legal drops for a piece in hand', () => {
+    const state = createGameState(
+      createBoardWithPieces([{ piece: createPiece('black', 'king'), row: 8, col: 4 }]),
+      'black',
+      createHands('black', 'silver'),
+    );
+
+    expect(isLegalDrop(state, 'silver', { row: 4, col: 4 })).toBe(true);
+    expect(sortMoves(getLegalDrops(state, 'silver'))).toContain('4,4');
+  });
+
+  it('drops a piece from hand onto the board and switches turns', () => {
+    const state = createGameState(
+      createBoardWithPieces([{ piece: createPiece('black', 'king'), row: 8, col: 4 }]),
+      'black',
+      createHands('black', 'silver', 2),
+    );
+
+    const nextState = dropPiece(state, 'silver', { row: 4, col: 4 });
+
+    expect(nextState.board[4][4]).toEqual(createPiece('black', 'silver'));
+    expect(nextState.hands.black.silver).toBe(1);
+    expect(nextState.currentPlayer).toBe('white');
+  });
+
+  it('forbids dropping a pawn into a file with an unpromoted pawn', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('black', 'king'), row: 8, col: 4 },
+        { piece: createPiece('black', 'pawn'), row: 5, col: 4 },
+      ]),
+      'black',
+      createHands('black', 'pawn'),
+    );
+
+    expect(isLegalDrop(state, 'pawn', { row: 4, col: 4 })).toBe(false);
+    expect(sortMoves(getLegalDrops(state, 'pawn'))).not.toContain('4,4');
+  });
+
+  it('allows dropping a pawn into a file with only a promoted pawn', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('black', 'king'), row: 8, col: 4 },
+        { piece: createPiece('black', 'pawn', true), row: 5, col: 4 },
+      ]),
+      'black',
+      createHands('black', 'pawn'),
+    );
+
+    expect(isLegalDrop(state, 'pawn', { row: 4, col: 4 })).toBe(true);
+  });
+
+  it('forbids pawn and lance drops on the last rank', () => {
+    const state = createGameState(
+      createBoardWithPieces([{ piece: createPiece('black', 'king'), row: 8, col: 4 }]),
+      'black',
+      {
+        ...createEmptyHands(),
+        black: {
+          ...createEmptyHands().black,
+          pawn: 1,
+          lance: 1,
+        },
+      },
+    );
+
+    expect(isLegalDrop(state, 'pawn', { row: 0, col: 3 })).toBe(false);
+    expect(isLegalDrop(state, 'lance', { row: 0, col: 5 })).toBe(false);
+  });
+
+  it('forbids knight drops on the last two ranks', () => {
+    const state = createGameState(
+      createBoardWithPieces([{ piece: createPiece('black', 'king'), row: 8, col: 4 }]),
+      'black',
+      createHands('black', 'knight'),
+    );
+
+    expect(isLegalDrop(state, 'knight', { row: 0, col: 4 })).toBe(false);
+    expect(isLegalDrop(state, 'knight', { row: 1, col: 4 })).toBe(false);
+    expect(isLegalDrop(state, 'knight', { row: 2, col: 4 })).toBe(true);
   });
 });

@@ -1,11 +1,16 @@
 import { useState } from 'react';
 import { BoardView } from './components/BoardView';
+import { HandTray } from './components/HandTray';
 import {
   createInitialGameState,
+  dropPiece,
+  getLegalDrops,
   getLegalMoves,
   getPromotionState,
   getWinner,
   movePiece,
+  type HandPieceType,
+  type Piece,
   type Position,
 } from './engine/shogi';
 
@@ -14,23 +19,52 @@ type PendingMove = {
   to: Position;
 };
 
+function getPieceStatusText(piece: Piece | null | undefined): string {
+  if (!piece) {
+    return 'none';
+  }
+
+  return piece.isPromoted ? `+${piece.type}` : piece.type;
+}
+
+function getSelectionStatusText(
+  piece: Piece | null | undefined,
+  handPiece: HandPieceType | null,
+): string {
+  if (handPiece) {
+    return `${handPiece} (hand)`;
+  }
+
+  return getPieceStatusText(piece);
+}
+
 function App() {
   const [gameState, setGameState] = useState(() => createInitialGameState());
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
+  const [selectedHandPiece, setSelectedHandPiece] = useState<HandPieceType | null>(null);
   const [pendingMove, setPendingMove] = useState<PendingMove | null>(null);
-  const [showPromotionChoice, setShowPromotionChoice] = useState(false);
   const winner = getWinner(gameState);
+  const showPromotionChoice = pendingMove !== null;
 
-  const legalMoves = selectedPosition ? getLegalMoves(gameState, selectedPosition) : [];
+  const legalTargets = selectedPosition
+    ? getLegalMoves(gameState, selectedPosition)
+    : selectedHandPiece
+      ? getLegalDrops(gameState, selectedHandPiece)
+      : [];
 
   const resetInteractionState = () => {
     setSelectedPosition(null);
+    setSelectedHandPiece(null);
     setPendingMove(null);
-    setShowPromotionChoice(false);
   };
 
   const applyMove = (from: Position, to: Position, promote?: boolean) => {
     setGameState(movePiece(gameState, from, to, promote));
+    resetInteractionState();
+  };
+
+  const applyDrop = (pieceType: HandPieceType, to: Position) => {
+    setGameState(dropPiece(gameState, pieceType, to));
     resetInteractionState();
   };
 
@@ -53,7 +87,22 @@ function App() {
       clickedPiece &&
       clickedPiece.owner === gameState.currentPlayer
     ) {
+      setSelectedHandPiece(null);
       setSelectedPosition(position);
+      return;
+    }
+
+    if (selectedHandPiece) {
+      const isDropTarget = legalTargets.some(
+        (move) => move.row === position.row && move.col === position.col,
+      );
+
+      if (!isDropTarget) {
+        setSelectedHandPiece(null);
+        return;
+      }
+
+      applyDrop(selectedHandPiece, position);
       return;
     }
 
@@ -61,7 +110,7 @@ function App() {
       return;
     }
 
-    const isMoveTarget = legalMoves.some(
+    const isMoveTarget = legalTargets.some(
       (move) => move.row === position.row && move.col === position.col,
     );
 
@@ -93,15 +142,24 @@ function App() {
         from: selectedPosition,
         to: position,
       });
-      setShowPromotionChoice(true);
+      setSelectedPosition(null);
       return;
     }
 
     applyMove(selectedPosition, position);
   };
 
-  const activePieceName = selectedPosition
-    ? gameState.board[selectedPosition.row][selectedPosition.col]?.type ?? null
+  const handleHandPieceSelect = (pieceType: HandPieceType) => {
+    if (winner || showPromotionChoice) {
+      return;
+    }
+
+    setSelectedPosition(null);
+    setSelectedHandPiece((currentPiece) => (currentPiece === pieceType ? null : pieceType));
+  };
+
+  const activePiece = selectedPosition
+    ? gameState.board[selectedPosition.row][selectedPosition.col]
     : null;
 
   return (
@@ -131,7 +189,7 @@ function App() {
           </div>
           <div>
             <span className="status-label">Selected</span>
-            <strong>{activePieceName ?? 'none'}</strong>
+            <strong>{getSelectionStatusText(activePiece, selectedHandPiece)}</strong>
           </div>
           <div>
             <span className="status-label">Result</span>
@@ -139,9 +197,28 @@ function App() {
           </div>
         </div>
 
+        <div className="hand-layout">
+          <HandTray
+            hand={gameState.hands.white}
+            isActive={gameState.currentPlayer === 'white'}
+            isDisabled={showPromotionChoice || winner !== null}
+            onSelectPiece={handleHandPieceSelect}
+            owner="white"
+            selectedPiece={gameState.currentPlayer === 'white' ? selectedHandPiece : null}
+          />
+          <HandTray
+            hand={gameState.hands.black}
+            isActive={gameState.currentPlayer === 'black'}
+            isDisabled={showPromotionChoice || winner !== null}
+            onSelectPiece={handleHandPieceSelect}
+            owner="black"
+            selectedPiece={gameState.currentPlayer === 'black' ? selectedHandPiece : null}
+          />
+        </div>
+
         <BoardView
           board={gameState.board}
-          legalMoves={legalMoves}
+          legalMoves={legalTargets}
           onSquareClick={handleSquareClick}
           selectedPosition={selectedPosition}
         />
@@ -187,8 +264,8 @@ function App() {
 
         <p className="help-text">
           Select one of the active player&apos;s pieces, then choose a highlighted square.
-          This version supports standard movement, captures, and promotion choice for local
-          two-player play.
+          This version supports standard movement, captures, promotion choice, and hand drops
+          for local two-player play.
         </p>
       </section>
     </main>
