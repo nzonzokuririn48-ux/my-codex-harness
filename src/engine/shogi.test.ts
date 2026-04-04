@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import {
   BOARD_SIZE,
   createEmptyBoardForTest,
@@ -12,6 +13,7 @@ import {
 import {
   createEmptyHands,
   dropPiece,
+  getLegalActions,
   getLegalDrops,
   isCheckmate,
   isInCheck,
@@ -704,5 +706,84 @@ describe('shogi engine', () => {
 
     expect(isInCheck(state, 'black')).toBe(false);
     expect(isCheckmate(state, 'black')).toBe(false);
+  });
+
+  it('enumerates legal move actions for the current player', () => {
+    const state = createGameState(
+      createBoardWithPieces([{ piece: createPiece('black', 'pawn'), row: 4, col: 4 }]),
+      'black',
+    );
+
+    expect(getLegalActions(state)).toEqual([
+      {
+        kind: 'move',
+        from: { row: 4, col: 4 },
+        to: { row: 3, col: 4 },
+        promote: false,
+      },
+    ]);
+  });
+
+  it('enumerates legal drop actions for pieces in hand', () => {
+    const state = createGameState(
+      createBoardWithPieces([{ piece: createPiece('black', 'king'), row: 8, col: 4 }]),
+      'black',
+      createHands('black', 'silver'),
+    );
+
+    const actions = getLegalActions(state);
+
+    expect(actions).toContainEqual({
+      kind: 'drop',
+      pieceType: 'silver',
+      to: { row: 4, col: 4 },
+    });
+  });
+
+  it('enumerates both optional promotion choices as separate actions', () => {
+    const state = createGameState(
+      createBoardWithPieces([{ piece: createPiece('black', 'pawn'), row: 3, col: 4 }]),
+      'black',
+    );
+
+    const actions = getLegalActions(state).filter(
+      (action) =>
+        action.kind === 'move' &&
+        action.from.row === 3 &&
+        action.from.col === 4 &&
+        action.to.row === 2 &&
+        action.to.col === 4,
+    );
+
+    expect(actions).toEqual([
+      {
+        kind: 'move',
+        from: { row: 3, col: 4 },
+        to: { row: 2, col: 4 },
+        promote: false,
+      },
+      {
+        kind: 'move',
+        from: { row: 3, col: 4 },
+        to: { row: 2, col: 4 },
+        promote: true,
+      },
+    ]);
+  });
+
+  it('enumerates only the forced promotion action when promotion is required', () => {
+    const state = createGameState(
+      createBoardWithPieces([{ piece: createPiece('black', 'pawn'), row: 1, col: 4 }]),
+      'black',
+    );
+
+    expect(getLegalActions(state)).toEqual([
+      {
+        kind: 'move',
+        from: { row: 1, col: 4 },
+        to: { row: 0, col: 4 },
+        promote: true,
+      },
+    ]);
   });
 });

@@ -36,6 +36,21 @@ export type MoveHistoryEntry = {
   capturedPieceType: PieceType | null;
 };
 
+export type CpuMoveAction = {
+  kind: 'move';
+  from: Position;
+  to: Position;
+  promote: boolean;
+};
+
+export type CpuDropAction = {
+  kind: 'drop';
+  pieceType: HandPieceType;
+  to: Position;
+};
+
+export type CpuAction = CpuMoveAction | CpuDropAction;
+
 export type GameState = {
   board: Board;
   currentPlayer: Player;
@@ -786,6 +801,66 @@ export function isCheckmate(state: GameState, owner: Player): boolean {
     !hasAnyLegalMove(state, owner) &&
     !hasAnyLegalDrop(state, owner)
   );
+}
+
+export function getLegalActions(state: GameState): CpuAction[] {
+  const actions: CpuAction[] = [];
+
+  for (let row = 0; row < BOARD_SIZE; row += 1) {
+    for (let col = 0; col < BOARD_SIZE; col += 1) {
+      const piece = state.board[row][col];
+
+      if (!piece || piece.owner !== state.currentPlayer) {
+        continue;
+      }
+
+      const from = { row, col };
+      const legalMoves = getLegalMoves(state, from);
+
+      legalMoves.forEach((to) => {
+        const promotionState = getPromotionState(piece, from.row, to.row);
+
+        if (promotionState === 'optional') {
+          actions.push(
+            {
+              kind: 'move',
+              from,
+              to,
+              promote: false,
+            },
+            {
+              kind: 'move',
+              from,
+              to,
+              promote: true,
+            },
+          );
+          return;
+        }
+
+        actions.push({
+          kind: 'move',
+          from,
+          to,
+          promote: promotionState === 'required',
+        });
+      });
+    }
+  }
+
+  HAND_PIECE_TYPES.forEach((pieceType) => {
+    const legalDrops = getLegalDrops(state, pieceType);
+
+    legalDrops.forEach((to) => {
+      actions.push({
+        kind: 'drop',
+        pieceType,
+        to,
+      });
+    });
+  });
+
+  return actions;
 }
 
 export function movePiece(
