@@ -55,6 +55,12 @@ button {
   font-size: clamp(1.8rem, 3vw, 2.6rem);
 }
 
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .eyebrow,
 .status-label,
 .help-text {
@@ -101,9 +107,30 @@ button {
   min-height: 44px;
 }
 
+.secondary-button {
+  border: 1px solid rgba(31, 41, 51, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1f2933;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 44px;
+}
+
 .reset-button:hover,
-.play-again-button:hover {
+.play-again-button:hover,
+.secondary-button:hover {
   filter: brightness(1.04);
+}
+
+.secondary-button:disabled,
+.reset-button:disabled,
+.play-again-button:disabled {
+  cursor: default;
+  opacity: 0.45;
+  filter: none;
+  box-shadow: none;
 }
 
 .game-banner {
@@ -390,7 +417,8 @@ button {
   }
 
   .reset-button,
-  .play-again-button {
+  .play-again-button,
+  .secondary-button {
     width: 100%;
     justify-content: center;
   }

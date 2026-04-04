@@ -5,6 +5,7 @@ import { MoveHistory } from './components/MoveHistory';
 import {
   createInitialGameState,
   dropPiece,
+  type GameState,
   isCheckmate,
   isInCheck,
   getLegalDrops,
@@ -48,6 +49,7 @@ function getPlayerLabel(player: Player): string {
 
 function App() {
   const [gameState, setGameState] = useState(() => createInitialGameState());
+  const [previousStates, setPreviousStates] = useState<GameState[]>([]);
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
   const [selectedHandPiece, setSelectedHandPiece] = useState<HandPieceType | null>(null);
   const [pendingMove, setPendingMove] = useState<PendingMove | null>(null);
@@ -74,6 +76,7 @@ function App() {
     : selectedHandPiece
       ? getLegalDrops(gameState, selectedHandPiece)
       : [];
+  const canUndo = previousStates.length > 0 && !showPromotionChoice;
 
   const resetInteractionState = () => {
     setSelectedPosition(null);
@@ -83,16 +86,35 @@ function App() {
 
   const resetGame = () => {
     setGameState(createInitialGameState());
+    setPreviousStates([]);
     resetInteractionState();
   };
 
   const applyMove = (from: Position, to: Position, promote?: boolean) => {
+    setPreviousStates((states) => [...states, gameState]);
     setGameState(movePiece(gameState, from, to, promote));
     resetInteractionState();
   };
 
   const applyDrop = (pieceType: HandPieceType, to: Position) => {
+    setPreviousStates((states) => [...states, gameState]);
     setGameState(dropPiece(gameState, pieceType, to));
+    resetInteractionState();
+  };
+
+  const handleUndo = () => {
+    if (!canUndo) {
+      return;
+    }
+
+    const previousState = previousStates[previousStates.length - 1];
+
+    if (!previousState) {
+      return;
+    }
+
+    setGameState(previousState);
+    setPreviousStates((states) => states.slice(0, -1));
     resetInteractionState();
   };
 
@@ -198,13 +220,23 @@ function App() {
             <p className="eyebrow">Local Shogi</p>
             <h1>First playable build</h1>
           </div>
-          <button
-            className="reset-button"
-            onClick={resetGame}
-            type="button"
-          >
-            Reset game
-          </button>
+          <div className="header-actions">
+            <button
+              className="secondary-button"
+              disabled={!canUndo}
+              onClick={handleUndo}
+              type="button"
+            >
+              Undo
+            </button>
+            <button
+              className="reset-button"
+              onClick={resetGame}
+              type="button"
+            >
+              Reset game
+            </button>
+          </div>
         </header>
 
         <div className="status-bar">
