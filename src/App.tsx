@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BoardView } from './components/BoardView';
 import { HandTray } from './components/HandTray';
 import { MoveHistory } from './components/MoveHistory';
@@ -18,6 +18,7 @@ import {
   type Player,
   type Position,
 } from './engine/shogi';
+import { createInitialPersistedGameState, persistGameState } from './lib/persistence';
 
 type PendingMove = {
   from: Position;
@@ -48,7 +49,7 @@ function getPlayerLabel(player: Player): string {
 }
 
 function App() {
-  const [gameState, setGameState] = useState(() => createInitialGameState());
+  const [gameState, setGameState] = useState(() => createInitialPersistedGameState());
   const [previousStates, setPreviousStates] = useState<GameState[]>([]);
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
   const [selectedHandPiece, setSelectedHandPiece] = useState<HandPieceType | null>(null);
@@ -77,6 +78,10 @@ function App() {
       ? getLegalDrops(gameState, selectedHandPiece)
       : [];
   const canUndo = previousStates.length > 0 && !showPromotionChoice;
+
+  useEffect(() => {
+    persistGameState(gameState);
+  }, [gameState]);
 
   const resetInteractionState = () => {
     setSelectedPosition(null);
