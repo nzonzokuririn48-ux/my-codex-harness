@@ -26,6 +26,15 @@ const BASE_PIECE_VALUES: Record<HandPieceType, number> = {
   rook: 5,
 };
 
+const ORDERING_PROMOTION_BONUSES: Partial<Record<PieceType, number>> = {
+  pawn: 2,
+  lance: 1.75,
+  knight: 1.75,
+  silver: 1.5,
+  bishop: 1,
+  rook: 1,
+};
+
 function getPieceValue(piece: Piece): number {
   if (piece.type === 'king') {
     return 0;
@@ -93,6 +102,36 @@ function applyCpuAction(state: GameState, action: CpuAction): GameState {
   return dropPiece(state, action.pieceType, action.to);
 }
 
+function scoreActionHeuristic(state: GameState, action: CpuAction): number {
+  if (action.kind === 'drop') {
+    return 0;
+  }
+
+  let score = 0;
+  const movingPiece = state.board[action.from.row][action.from.col];
+  const capturedPiece = state.board[action.to.row][action.to.col];
+
+  if (capturedPiece && capturedPiece.type !== 'king') {
+    score += BASE_PIECE_VALUES[capturedPiece.type];
+  }
+
+  if (capturedPiece?.type === 'king') {
+    score += TERMINAL_SCORE;
+  }
+
+  if (action.promote && movingPiece) {
+    score += ORDERING_PROMOTION_BONUSES[movingPiece.type] ?? 0.5;
+  }
+
+  return score;
+}
+
+function getOrderedActions(state: GameState): CpuAction[] {
+  return [...getLegalActions(state)].sort(
+    (left, right) => scoreActionHeuristic(state, right) - scoreActionHeuristic(state, left),
+  );
+}
+
 export function evaluateState(state: GameState, maximizingPlayer: Player): number {
   const terminalWinner = getTerminalWinner(state);
 
@@ -123,13 +162,15 @@ export function evaluateState(state: GameState, maximizingPlayer: Player): numbe
 export function minimax(
   state: GameState,
   depth: number,
+  alpha: number,
+  beta: number,
   maximizingPlayer: Player,
 ): number {
   if (depth === 0 || getTerminalWinner(state)) {
     return evaluateState(state, maximizingPlayer);
   }
 
-  const actions = getLegalActions(state);
+  const actions = getOrderedActions(state);
 
   if (actions.length === 0) {
     return evaluateState(state, maximizingPlayer);
@@ -138,24 +179,40 @@ export function minimax(
   const isMaximizingTurn = state.currentPlayer === maximizingPlayer;
 
   if (isMaximizingTurn) {
-    let bestScore = -Infinity;
+    let value = -Infinity;
 
-    actions.forEach((action) => {
+    for (const action of actions) {
+      if (beta <= alpha) {
+        break;
+      }
+
       const nextState = applyCpuAction(state, action);
-      bestScore = Math.max(bestScore, minimax(nextState, depth - 1, maximizingPlayer));
-    });
+      value = Math.max(
+        value,
+        minimax(nextState, depth - 1, alpha, beta, maximizingPlayer),
+      );
+      alpha = Math.max(alpha, value);
+    }
 
-    return bestScore;
+    return value;
   }
 
-  let bestScore = Infinity;
+  let value = Infinity;
 
-  actions.forEach((action) => {
+  for (const action of actions) {
+    if (beta <= alpha) {
+      break;
+    }
+
     const nextState = applyCpuAction(state, action);
-    bestScore = Math.min(bestScore, minimax(nextState, depth - 1, maximizingPlayer));
-  });
+    value = Math.min(
+      value,
+      minimax(nextState, depth - 1, alpha, beta, maximizingPlayer),
+    );
+    beta = Math.min(beta, value);
+  }
 
-  return bestScore;
+  return value;
 }
 
 export function chooseCpuAction(state: GameState, actions: CpuAction[]): CpuAction | null {
@@ -164,11 +221,14 @@ export function chooseCpuAction(state: GameState, actions: CpuAction[]): CpuActi
   }
 
   const maximizingPlayer = state.currentPlayer;
-  const scoredActions = actions.map((action) => {
+  const orderedActions = [...actions].sort(
+    (left, right) => scoreActionHeuristic(state, right) - scoreActionHeuristic(state, left),
+  );
+  const scoredActions = orderedActions.map((action) => {
     const nextState = applyCpuAction(state, action);
     return {
       action,
-      score: minimax(nextState, 1, maximizingPlayer),
+      score: minimax(nextState, 1, -Infinity, Infinity, maximizingPlayer),
     };
   });
   const topScore = Math.max(...scoredActions.map(({ score }) => score));
