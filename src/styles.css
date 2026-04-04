@@ -77,6 +77,32 @@ button {
   gap: 10px;
 }
 
+.mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(31, 41, 51, 0.1);
+}
+
+.mode-button {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #1f2933;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 600;
+  min-height: 44px;
+}
+
+.mode-button.is-active {
+  background: #2f6f58;
+  color: #ffffff;
+}
+
 .eyebrow,
 .status-label,
 .help-text {
@@ -136,10 +162,12 @@ button {
 
 .reset-button:hover,
 .play-again-button:hover,
-.secondary-button:hover {
+.secondary-button:hover,
+.mode-button:hover {
   filter: brightness(1.04);
 }
 
+.mode-button:disabled,
 .secondary-button:disabled,
 .reset-button:disabled,
 .play-again-button:disabled {
@@ -168,6 +196,11 @@ button {
 .game-banner-warning {
   background: rgba(186, 92, 34, 0.12);
   border: 1px solid rgba(186, 92, 34, 0.24);
+}
+
+.game-banner-info {
+  background: rgba(41, 98, 180, 0.12);
+  border: 1px solid rgba(41, 98, 180, 0.24);
 }
 
 .play-again-button {
@@ -444,9 +477,18 @@ button {
 
   .reset-button,
   .play-again-button,
-  .secondary-button {
+  .secondary-button,
+  .mode-button {
     width: 100%;
     justify-content: center;
+  }
+
+  .mode-toggle {
+    width: 100%;
+    display: grid;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 16px;
   }
 
   .game-banner {

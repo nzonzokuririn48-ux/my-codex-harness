@@ -4,9 +4,11 @@ import { HandTray } from './components/HandTray';
 import { MoveHistory } from './components/MoveHistory';
 import { StartPrompt } from './components/StartPrompt';
 import {
+  type CpuAction,
   createInitialGameState,
   dropPiece,
   type GameState,
+  getLegalActions,
   isCheckmate,
   isInCheck,
   getLegalDrops,
@@ -35,6 +37,10 @@ type StartFlowState = {
   requiresChoice: boolean;
   savedGame: GameState | null;
 };
+
+type GameMode = 'local' | 'cpu';
+
+const GAME_MODE_STORAGE_KEY = 'shogi-app-mode';
 
 function getPieceStatusText(piece: Piece | null | undefined): string {
   if (!piece) {
@@ -68,8 +74,30 @@ function createStartFlowState(): StartFlowState {
   };
 }
 
+function loadPersistedGameMode(): GameMode {
+  if (typeof window === 'undefined') {
+    return 'local';
+  }
+
+  const savedMode = window.localStorage.getItem(GAME_MODE_STORAGE_KEY);
+  return savedMode === 'cpu' ? 'cpu' : 'local';
+}
+
+function persistGameMode(mode: GameMode): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(GAME_MODE_STORAGE_KEY, mode);
+  } catch {
+    // Ignore persistence failures and keep the live game usable.
+  }
+}
+
 function App() {
   const [startFlowState, setStartFlowState] = useState(() => createStartFlowState());
+  const [gameMode, setGameMode] = useState<GameMode>(() => loadPersistedGameMode());
   const [gameState, setGameState] = useState(() => createInitialGameState());
   const [previousStates, setPreviousStates] = useState<GameState[]>([]);
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
@@ -92,13 +120,19 @@ function App() {
       : otherPlayerCheck
         ? otherPlayer
         : null;
+  const isCpuTurn =
+    gameMode === 'cpu' &&
+    gameState.currentPlayer === 'white' &&
+    winner === null &&
+    !showPromotionChoice &&
+    !startFlowState.requiresChoice;
 
   const legalTargets = selectedPosition
     ? getLegalMoves(gameState, selectedPosition)
     : selectedHandPiece
       ? getLegalDrops(gameState, selectedHandPiece)
       : [];
-  const canUndo = previousStates.length > 0 && !showPromotionChoice;
+  const canUndo = previousStates.length > 0 && !showPromotionChoice && !isCpuTurn;
 
   useEffect(() => {
     if (startFlowState.requiresChoice) {
@@ -108,10 +142,26 @@ function App() {
     persistGameState(gameState);
   }, [gameState, startFlowState.requiresChoice]);
 
+  useEffect(() => {
+    persistGameMode(gameMode);
+  }, [gameMode]);
+
   const resetInteractionState = () => {
     setSelectedPosition(null);
     setSelectedHandPiece(null);
     setPendingMove(null);
+  };
+
+  const applyCpuAction = (action: CpuAction) => {
+    setPreviousStates((states) => [...states, gameState]);
+
+    if (action.kind === 'move') {
+      setGameState(movePiece(gameState, action.from, action.to, action.promote));
+    } else {
+      setGameState(dropPiece(gameState, action.pieceType, action.to));
+    }
+
+    resetInteractionState();
   };
 
   const resetGame = () => {
@@ -147,6 +197,17 @@ function App() {
       requiresChoice: false,
       savedGame: null,
     });
+  };
+
+  const handleGameModeChange = (nextMode: GameMode) => {
+    if (gameMode === nextMode) {
+      return;
+    }
+
+    setGameMode(nextMode);
+    setGameState(createInitialGameState());
+    setPreviousStates([]);
+    resetInteractionState();
   };
 
   const applyMove = (from: Position, to: Position, promote?: boolean) => {
@@ -186,7 +247,7 @@ function App() {
   };
 
   const handleSquareClick = (position: Position) => {
-    if (winner || showPromotionChoice) {
+    if (winner || showPromotionChoice || isCpuTurn) {
       return;
     }
 
@@ -259,13 +320,35 @@ function App() {
   };
 
   const handleHandPieceSelect = (pieceType: HandPieceType) => {
-    if (winner || showPromotionChoice) {
+    if (winner || showPromotionChoice || isCpuTurn) {
       return;
     }
 
     setSelectedPosition(null);
     setSelectedHandPiece((currentPiece) => (currentPiece === pieceType ? null : pieceType));
   };
+
+  useEffect(() => {
+    if (!isCpuTurn) {
+      return;
+    }
+
+    const legalActions = getLegalActions(gameState);
+
+    if (legalActions.length === 0) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      const action =
+        legalActions[Math.floor(Math.random() * legalActions.length)];
+      applyCpuAction(action);
+    }, 450);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [gameState, isCpuTurn]);
 
   const handleExportMoves = () => {
     if (gameState.history.length === 0) {
@@ -307,6 +390,22 @@ function App() {
             <h1>Shogi App</h1>
           </div>
           <div className="header-actions">
+            <div className="mode-toggle" role="group" aria-label="Game mode">
+              <button
+                className={`mode-button${gameMode === 'local' ? ' is-active' : ''}`}
+                onClick={() => handleGameModeChange('local')}
+                type="button"
+              >
+                Local
+              </button>
+              <button
+                className={`mode-button${gameMode === 'cpu' ? ' is-active' : ''}`}
+                onClick={() => handleGameModeChange('cpu')}
+                type="button"
+              >
+                Vs CPU
+              </button>
+            </div>
             <button
               className="secondary-button"
               disabled={!canUndo}
@@ -344,6 +443,10 @@ function App() {
                   : 'in progress'}
             </strong>
           </div>
+          <div>
+            <span className="status-label">Mode</span>
+            <strong>{gameMode === 'cpu' ? 'vs CPU' : 'local'}</strong>
+          </div>
         </div>
 
         {winner ? (
@@ -361,13 +464,17 @@ function App() {
           <div className="game-banner game-banner-warning">
             <strong>{getPlayerLabel(checkedPlayer)} is in check</strong>
           </div>
+        ) : isCpuTurn ? (
+          <div className="game-banner game-banner-info">
+            <strong>CPU is thinking...</strong>
+          </div>
         ) : null}
 
         <div className="hand-layout">
           <HandTray
             hand={gameState.hands.white}
             isActive={gameState.currentPlayer === 'white'}
-            isDisabled={showPromotionChoice || winner !== null}
+            isDisabled={showPromotionChoice || winner !== null || isCpuTurn}
             onSelectPiece={handleHandPieceSelect}
             owner="white"
             selectedPiece={gameState.currentPlayer === 'white' ? selectedHandPiece : null}
@@ -375,7 +482,7 @@ function App() {
           <HandTray
             hand={gameState.hands.black}
             isActive={gameState.currentPlayer === 'black'}
-            isDisabled={showPromotionChoice || winner !== null}
+            isDisabled={showPromotionChoice || winner !== null || isCpuTurn}
             onSelectPiece={handleHandPieceSelect}
             owner="black"
             selectedPiece={gameState.currentPlayer === 'black' ? selectedHandPiece : null}
@@ -433,7 +540,7 @@ function App() {
         <p className="help-text">
           Select one of the active player&apos;s pieces, then choose a highlighted square.
           The app supports standard movement, captures, promotion choice, hand drops,
-          move history, and local two-player play.
+          move history, local two-player play, and a simple random CPU mode.
         </p>
       </section>
     </main>
