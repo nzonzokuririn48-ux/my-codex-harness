@@ -26,6 +26,7 @@ import {
   loadPersistedGameState,
   persistGameState,
 } from './lib/persistence';
+import { chooseCpuAction } from './lib/cpu';
 import { buildMoveHistoryExportText } from './lib/moveHistory';
 
 type PendingMove = {
@@ -340,8 +341,12 @@ function App() {
     }
 
     const timeoutId = window.setTimeout(() => {
-      const action =
-        legalActions[Math.floor(Math.random() * legalActions.length)];
+      const action = chooseCpuAction(gameState, legalActions);
+
+      if (!action) {
+        return;
+      }
+
       applyCpuAction(action);
     }, 450);
 
