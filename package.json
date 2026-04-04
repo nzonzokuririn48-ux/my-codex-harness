@@ -1,5 +1,6 @@
 {
-  "name": "local-shogi-app",
+  "name": "shogi-app",
+  "description": "A minimal local shogi app built with React, TypeScript, and Vite.",
   "private": true,
   "version": "0.1.0",
   "type": "module",

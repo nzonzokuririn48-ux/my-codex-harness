@@ -1,44 +1,53 @@
-# Codex Agent Harness
+# Shogi App
 
-A personal structured Codex system inspired by Claude Code.
+A minimal local shogi app built with React, TypeScript, and Vite.
 
-## Purpose
-Turn Codex into a structured, reliable coding agent by combining:
+## Features
 
-- rules (always-on principles)
-- skills (on-demand capabilities)
-- agents (role separation)
-- hooks (automation & safety)
-- memory (persistent context)
-- evals (continuous improvement)
+- 9x9 shogi board with local two-player play
+- Standard movement, captures, promotion, hands, and drops
+- Check detection, self-check prevention, and basic checkmate detection
+- Move history, move export, and single-step undo
+- Local save/restore flow with continue or new game choice
+- Mobile-friendly UI and installable PWA support
 
-## Structure
+## Run Locally
 
-.codex/ → agent configs  
-rules/ → always-on behavior  
-skills/ → situational workflows  
-memory/ → persistent state  
-evals/ → evaluation definitions  
-hooks/ → automation scripts  
+```bash
+npm install
+npm run dev
+```
 
-## Philosophy
+Open the local Vite URL shown in the terminal.
 
-This is not a prompt.
+## Build
 
-This is a system.
+```bash
+npm run build
+```
 
-## Usage
+## Preview Production Build
 
-1. Point Codex to this repository
-2. Let it load:
-   - rules
-   - agents
-   - working context
-3. Execute tasks with structured reasoning
+```bash
+npm run preview
+```
 
-## Goal
+This is the best way to verify the production app, including service worker and manifest behavior.
 
-Build a self-improving coding agent that:
-- thinks before coding
-- verifies before claiming success
-- learns from past mistakes
+## PWA
+
+The app includes a web app manifest, service worker, and installable app metadata for mobile and desktop browsers that support PWA installation.
+
+## Current Limitations
+
+- No AI opponent or network multiplayer
+- No formal KIF or CSA notation export yet
+- No repetition, impasse, or draw rules
+- No advanced shogi end-state handling beyond the current check/checkmate and king-capture flow
+
+## Tech Stack
+
+- React
+- TypeScript
+- Vite
+- Vitest

@@ -304,7 +304,7 @@ function App() {
         <header className="app-header">
           <div>
             <p className="eyebrow">Local Shogi</p>
-            <h1>First playable build</h1>
+            <h1>Shogi App</h1>
           </div>
           <div className="header-actions">
             <button
@@ -432,8 +432,8 @@ function App() {
 
         <p className="help-text">
           Select one of the active player&apos;s pieces, then choose a highlighted square.
-          This version supports standard movement, captures, promotion choice, and hand drops
-          for local two-player play.
+          The app supports standard movement, captures, promotion choice, hand drops,
+          move history, and local two-player play.
         </p>
       </section>
     </main>
