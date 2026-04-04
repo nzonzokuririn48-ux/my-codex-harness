@@ -15,6 +15,9 @@ import {
 
 const TERMINAL_SCORE = 100000;
 const CHECK_BONUS = 0.5;
+const ROOT_SEARCH_DEPTH = 2;
+const FALLBACK_ACTION_COUNT = 80;
+const FALLBACK_SEARCH_DEPTH = 1;
 
 const BASE_PIECE_VALUES: Record<HandPieceType, number> = {
   pawn: 1,
@@ -221,6 +224,8 @@ export function chooseCpuAction(state: GameState, actions: CpuAction[]): CpuActi
   }
 
   const maximizingPlayer = state.currentPlayer;
+  const searchDepth =
+    actions.length > FALLBACK_ACTION_COUNT ? FALLBACK_SEARCH_DEPTH : ROOT_SEARCH_DEPTH;
   const orderedActions = [...actions].sort(
     (left, right) => scoreActionHeuristic(state, right) - scoreActionHeuristic(state, left),
   );
@@ -228,7 +233,7 @@ export function chooseCpuAction(state: GameState, actions: CpuAction[]): CpuActi
     const nextState = applyCpuAction(state, action);
     return {
       action,
-      score: minimax(nextState, 1, -Infinity, Infinity, maximizingPlayer),
+      score: minimax(nextState, searchDepth, -Infinity, Infinity, maximizingPlayer),
     };
   });
   const topScore = Math.max(...scoredActions.map(({ score }) => score));
