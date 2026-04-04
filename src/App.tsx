@@ -24,6 +24,7 @@ import {
   loadPersistedGameState,
   persistGameState,
 } from './lib/persistence';
+import { buildMoveHistoryExportText } from './lib/moveHistory';
 
 type PendingMove = {
   from: Position;
@@ -266,6 +267,24 @@ function App() {
     setSelectedHandPiece((currentPiece) => (currentPiece === pieceType ? null : pieceType));
   };
 
+  const handleExportMoves = () => {
+    if (gameState.history.length === 0) {
+      return;
+    }
+
+    const exportText = buildMoveHistoryExportText(gameState.history);
+    const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
+    const blobUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = blobUrl;
+    link.download = 'shogi-kifu.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl);
+  };
+
   const activePiece = selectedPosition
     ? gameState.board[selectedPosition.row][selectedPosition.col]
     : null;
@@ -370,7 +389,7 @@ function App() {
           selectedPosition={selectedPosition}
         />
 
-        <MoveHistory history={gameState.history} />
+        <MoveHistory history={gameState.history} onExport={handleExportMoves} />
 
         {showPromotionChoice ? (
           <div

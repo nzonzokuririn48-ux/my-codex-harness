@@ -338,6 +338,16 @@ button {
   align-items: center;
   gap: 12px;
   margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.move-history-summary {
+  display: grid;
+  gap: 2px;
+}
+
+.move-history-export {
+  justify-content: center;
 }
 
 .move-history-empty {
@@ -445,6 +455,10 @@ button {
 
   .move-history {
     padding: 12px 14px;
+  }
+
+  .move-history-export {
+    width: 100%;
   }
 
   .hand-tray {

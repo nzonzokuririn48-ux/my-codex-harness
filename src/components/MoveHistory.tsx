@@ -1,37 +1,27 @@
-import { PIECE_LABELS, type MoveHistoryEntry } from '../engine/shogi';
+import type { MoveHistoryEntry } from '../engine/shogi';
+import { formatMoveHistoryEntry } from '../lib/moveHistory';
 
 type MoveHistoryProps = {
   history: MoveHistoryEntry[];
+  onExport: () => void;
 };
 
-const RANK_LABELS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'];
-
-function formatPosition(position: MoveHistoryEntry['to']): string {
-  const file = 9 - position.col;
-  const rank = RANK_LABELS[position.row] ?? '?';
-  return `${file}${rank}`;
-}
-
-function formatEntry(entry: MoveHistoryEntry): string {
-  const pieceLabel = `${entry.isPromoted ? '+' : ''}${PIECE_LABELS[entry.pieceType]}`;
-
-  if (entry.from === 'drop') {
-    return `${pieceLabel}* ${formatPosition(entry.to)}`;
-  }
-
-  const captureSuffix = entry.capturedPieceType
-    ? ` x${PIECE_LABELS[entry.capturedPieceType]}`
-    : '';
-
-  return `${pieceLabel} ${formatPosition(entry.from)}→${formatPosition(entry.to)}${captureSuffix}`;
-}
-
-export function MoveHistory({ history }: MoveHistoryProps) {
+export function MoveHistory({ history, onExport }: MoveHistoryProps) {
   return (
     <section className="move-history" aria-label="Move history">
       <div className="move-history-header">
-        <span className="status-label">Kifu</span>
-        <strong>{history.length} moves</strong>
+        <div className="move-history-summary">
+          <span className="status-label">Kifu</span>
+          <strong>{history.length} moves</strong>
+        </div>
+        <button
+          className="secondary-button move-history-export"
+          disabled={history.length === 0}
+          onClick={onExport}
+          type="button"
+        >
+          Export moves
+        </button>
       </div>
 
       {history.length === 0 ? (
@@ -39,9 +29,12 @@ export function MoveHistory({ history }: MoveHistoryProps) {
       ) : (
         <ol className="move-history-list">
           {history.map((entry, index) => (
-            <li className="move-history-item" key={`${index + 1}-${formatEntry(entry)}`}>
+            <li
+              className="move-history-item"
+              key={`${index + 1}-${formatMoveHistoryEntry(entry)}`}
+            >
               <span className="move-history-number">{index + 1}.</span>
-              <span className="move-history-text">{formatEntry(entry)}</span>
+              <span className="move-history-text">{formatMoveHistoryEntry(entry)}</span>
             </li>
           ))}
         </ol>
