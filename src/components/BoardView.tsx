@@ -15,6 +15,10 @@ function isLegalTarget(position: Position, legalMoves: Position[]): boolean {
   return legalMoves.some((move) => move.row === position.row && move.col === position.col);
 }
 
+function getPieceLabel(label: string, isPromoted: boolean): string {
+  return isPromoted ? `+${label}` : label;
+}
+
 export function BoardView({
   board,
   selectedPosition,
@@ -46,7 +50,9 @@ export function BoardView({
                 {piece ? (
                   <span className={`piece-chip owner-${piece.owner}`}>
                     <span className="piece-owner">{piece.owner === 'black' ? 'B' : 'W'}</span>
-                    <span className="piece-label">{PIECE_LABELS[piece.type]}</span>
+                    <span className="piece-label">
+                      {getPieceLabel(PIECE_LABELS[piece.type], piece.isPromoted)}
+                    </span>
                   </span>
                 ) : isTarget ? (
                   <span className="target-dot" aria-hidden="true" />
