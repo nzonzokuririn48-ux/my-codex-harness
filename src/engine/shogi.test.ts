@@ -13,6 +13,7 @@ import {
   createEmptyHands,
   dropPiece,
   getLegalDrops,
+  isCheckmate,
   isInCheck,
   getWinner,
   isLegalDrop,
@@ -596,5 +597,93 @@ describe('shogi engine', () => {
     );
 
     expect(isLegalDrop(state, 'silver', { row: 6, col: 4 })).toBe(true);
+  });
+
+  it('is not checkmate when the checked player has an escape move', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('white', 'king'), row: 0, col: 0 },
+        { piece: createPiece('white', 'rook'), row: 5, col: 4 },
+        { piece: createPiece('black', 'king'), row: 8, col: 4 },
+      ]),
+      'black',
+    );
+
+    expect(isCheckmate(state, 'black')).toBe(false);
+  });
+
+  it('is not checkmate when the checked player can block', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('white', 'king'), row: 0, col: 0 },
+        { piece: createPiece('white', 'rook'), row: 5, col: 4 },
+        { piece: createPiece('black', 'gold'), row: 8, col: 3 },
+        { piece: createPiece('black', 'king'), row: 8, col: 4 },
+      ]),
+      'black',
+    );
+
+    expect(isCheckmate(state, 'black')).toBe(false);
+  });
+
+  it('is not checkmate when the checked player can capture the attacker', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('white', 'king'), row: 0, col: 0 },
+        { piece: createPiece('white', 'rook'), row: 7, col: 4 },
+        { piece: createPiece('black', 'gold'), row: 8, col: 3 },
+        { piece: createPiece('black', 'king'), row: 8, col: 4 },
+      ]),
+      'black',
+    );
+
+    expect(isCheckmate(state, 'black')).toBe(false);
+  });
+
+  it('is not checkmate when the checked player can resolve it with a drop', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('white', 'king'), row: 0, col: 0 },
+        { piece: createPiece('white', 'rook'), row: 4, col: 4 },
+        { piece: createPiece('black', 'king'), row: 8, col: 4 },
+      ]),
+      'black',
+      createHands('black', 'silver'),
+    );
+
+    expect(isCheckmate(state, 'black')).toBe(false);
+  });
+
+  it('detects a simple forced mate position', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('white', 'king'), row: 0, col: 0 },
+        { piece: createPiece('white', 'gold'), row: 6, col: 3 },
+        { piece: createPiece('white', 'gold'), row: 6, col: 5 },
+        { piece: createPiece('white', 'gold'), row: 7, col: 2 },
+        { piece: createPiece('white', 'gold'), row: 7, col: 6 },
+        { piece: createPiece('white', 'rook'), row: 7, col: 4 },
+        { piece: createPiece('black', 'king'), row: 8, col: 4 },
+      ]),
+      'black',
+    );
+
+    expect(isCheckmate(state, 'black')).toBe(true);
+  });
+
+  it('does not count as checkmate when the player is not in check even with no legal actions', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('black', 'king'), row: 0, col: 0 },
+        { piece: createPiece('black', 'pawn'), row: 0, col: 1 },
+        { piece: createPiece('black', 'pawn'), row: 1, col: 0 },
+        { piece: createPiece('black', 'pawn'), row: 1, col: 1 },
+        { piece: createPiece('white', 'king'), row: 8, col: 8 },
+      ]),
+      'black',
+    );
+
+    expect(isInCheck(state, 'black')).toBe(false);
+    expect(isCheckmate(state, 'black')).toBe(false);
   });
 });

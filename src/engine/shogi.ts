@@ -47,6 +47,16 @@ export const PIECE_LABELS: Record<PieceType, string> = {
   pawn: 'P',
 };
 
+const HAND_PIECE_TYPES: HandPieceType[] = [
+  'rook',
+  'bishop',
+  'gold',
+  'silver',
+  'knight',
+  'lance',
+  'pawn',
+];
+
 const HOME_ROW: PieceType[] = [
   'lance',
   'knight',
@@ -190,6 +200,18 @@ function cloneHands(hands: Hands): Hands {
   return {
     black: { ...hands.black },
     white: { ...hands.white },
+  };
+}
+
+function getStateForPlayerTurn(state: GameState, owner: Player): GameState {
+  if (state.currentPlayer === owner) {
+    return state;
+  }
+
+  return {
+    board: state.board,
+    currentPlayer: owner,
+    hands: state.hands,
   };
 }
 
@@ -682,6 +704,44 @@ export function isInCheck(state: GameState, owner: Player): boolean {
 
   const attacker = owner === 'black' ? 'white' : 'black';
   return isSquareAttackedBy(state, kingPosition, attacker);
+}
+
+export function hasAnyLegalMove(state: GameState, owner: Player): boolean {
+  const ownerState = getStateForPlayerTurn(state, owner);
+
+  for (let row = 0; row < BOARD_SIZE; row += 1) {
+    for (let col = 0; col < BOARD_SIZE; col += 1) {
+      const square = ownerState.board[row][col];
+
+      if (!square || square.owner !== owner) {
+        continue;
+      }
+
+      if (getLegalMoves(ownerState, { row, col }).length > 0) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+export function hasAnyLegalDrop(state: GameState, owner: Player): boolean {
+  const ownerState = getStateForPlayerTurn(state, owner);
+
+  return HAND_PIECE_TYPES.some(
+    (pieceType) =>
+      ownerState.hands[owner][pieceType] > 0 &&
+      getLegalDrops(ownerState, pieceType).length > 0,
+  );
+}
+
+export function isCheckmate(state: GameState, owner: Player): boolean {
+  return (
+    isInCheck(state, owner) &&
+    !hasAnyLegalMove(state, owner) &&
+    !hasAnyLegalDrop(state, owner)
+  );
 }
 
 export function movePiece(

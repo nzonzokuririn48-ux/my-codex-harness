@@ -4,6 +4,7 @@ import { HandTray } from './components/HandTray';
 import {
   createInitialGameState,
   dropPiece,
+  isCheckmate,
   isInCheck,
   getLegalDrops,
   getLegalMoves,
@@ -49,10 +50,15 @@ function App() {
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
   const [selectedHandPiece, setSelectedHandPiece] = useState<HandPieceType | null>(null);
   const [pendingMove, setPendingMove] = useState<PendingMove | null>(null);
-  const winner = getWinner(gameState);
+  const captureWinner = getWinner(gameState);
   const showPromotionChoice = pendingMove !== null;
-  const currentPlayerCheck = isInCheck(gameState, gameState.currentPlayer);
   const otherPlayer = gameState.currentPlayer === 'black' ? 'white' : 'black';
+  const checkmateWinner =
+    captureWinner || !isCheckmate(gameState, gameState.currentPlayer)
+      ? null
+      : otherPlayer;
+  const winner = captureWinner ?? checkmateWinner;
+  const currentPlayerCheck = winner ? false : isInCheck(gameState, gameState.currentPlayer);
   const otherPlayerCheck = isInCheck(gameState, otherPlayer);
   const checkedPlayer = winner
     ? null
@@ -209,11 +215,17 @@ function App() {
           </div>
           <div>
             <span className="status-label">Result</span>
-            <strong>{winner ? `${getPlayerLabel(winner)} wins` : 'in progress'}</strong>
+            <strong>
+              {captureWinner
+                ? `${getPlayerLabel(captureWinner)} wins`
+                : checkmateWinner
+                  ? `${getPlayerLabel(checkmateWinner)} wins by checkmate`
+                  : 'in progress'}
+            </strong>
           </div>
         </div>
 
-        {winner ? (
+        {captureWinner ? (
           <div
             style={{
               marginBottom: '20px',
@@ -223,7 +235,19 @@ function App() {
               border: '1px solid rgba(47, 111, 88, 0.24)',
             }}
           >
-            <strong>{getPlayerLabel(winner)} wins</strong>
+            <strong>{getPlayerLabel(captureWinner)} wins</strong>
+          </div>
+        ) : checkmateWinner ? (
+          <div
+            style={{
+              marginBottom: '20px',
+              padding: '12px 16px',
+              borderRadius: '16px',
+              background: 'rgba(47, 111, 88, 0.12)',
+              border: '1px solid rgba(47, 111, 88, 0.24)',
+            }}
+          >
+            <strong>{getPlayerLabel(checkmateWinner)} wins by checkmate</strong>
           </div>
         ) : checkedPlayer ? (
           <div
