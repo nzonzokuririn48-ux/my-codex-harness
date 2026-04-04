@@ -72,6 +72,7 @@ describe('shogi engine', () => {
     expect(state.board[2].every((square) => square?.type === 'pawn')).toBe(true);
     expect(state.board[2].every((square) => square?.isPromoted === false)).toBe(true);
     expect(state.hands).toEqual(createEmptyHands());
+    expect(state.history).toEqual([]);
   });
 
   it('allows a black pawn to move one square forward', () => {
@@ -213,6 +214,15 @@ describe('shogi engine', () => {
     expect(nextState.board[3][4]).toEqual(createPiece('black', 'pawn'));
     expect(nextState.currentPlayer).toBe('white');
     expect(nextState.hands.black.silver).toBe(1);
+    expect(nextState.history).toEqual([
+      {
+        pieceType: 'pawn',
+        from: { row: 4, col: 4 },
+        to: { row: 3, col: 4 },
+        isPromoted: false,
+        capturedPieceType: 'silver',
+      },
+    ]);
   });
 
   it('promotes a pawn when entering the zone with the promotion flag', () => {
@@ -356,6 +366,15 @@ describe('shogi engine', () => {
     expect(nextState.board[4][4]).toEqual(createPiece('black', 'silver'));
     expect(nextState.hands.black.silver).toBe(1);
     expect(nextState.currentPlayer).toBe('white');
+    expect(nextState.history).toEqual([
+      {
+        pieceType: 'silver',
+        from: 'drop',
+        to: { row: 4, col: 4 },
+        isPromoted: false,
+        capturedPieceType: null,
+      },
+    ]);
   });
 
   it('forbids dropping a pawn into a file with an unpromoted pawn', () => {

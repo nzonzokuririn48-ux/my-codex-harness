@@ -28,10 +28,19 @@ export type Position = {
   col: number;
 };
 
+export type MoveHistoryEntry = {
+  pieceType: PieceType;
+  from: Position | 'drop';
+  to: Position;
+  isPromoted: boolean;
+  capturedPieceType: PieceType | null;
+};
+
 export type GameState = {
   board: Board;
   currentPlayer: Player;
   hands: Hands;
+  history: MoveHistoryEntry[];
 };
 
 export type PromotionState = 'none' | 'optional' | 'required';
@@ -177,6 +186,7 @@ export function createInitialGameState(): GameState {
     board: createInitialBoard(),
     currentPlayer: 'black',
     hands: createEmptyHands(),
+    history: [],
   };
 }
 
@@ -184,11 +194,13 @@ export function createGameState(
   board: Board,
   currentPlayer: Player = 'black',
   hands: Hands = createEmptyHands(),
+  history: MoveHistoryEntry[] = [],
 ): GameState {
   return {
     board,
     currentPlayer,
     hands,
+    history,
   };
 }
 
@@ -212,6 +224,7 @@ function getStateForPlayerTurn(state: GameState, owner: Player): GameState {
     board: state.board,
     currentPlayer: owner,
     hands: state.hands,
+    history: state.history,
   };
 }
 
@@ -445,11 +458,19 @@ function getMovesForPieceAt(state: GameState, from: Position): Position[] {
   ];
 }
 
+function appendHistoryEntry(
+  history: MoveHistoryEntry[],
+  entry: MoveHistoryEntry,
+): MoveHistoryEntry[] {
+  return [...history, entry];
+}
+
 function applyMoveUnchecked(
   state: GameState,
   from: Position,
   to: Position,
   promote = false,
+  recordHistory = true,
 ): GameState {
   const piece = state.board[from.row]?.[from.col];
 
@@ -483,10 +504,21 @@ function applyMoveUnchecked(
     isPromoted: shouldPromote ? true : movingPiece.isPromoted,
   };
 
+  const nextHistory = recordHistory
+    ? appendHistoryEntry(state.history, {
+        pieceType: movingPiece.type,
+        from,
+        to,
+        isPromoted: shouldPromote ? true : movingPiece.isPromoted,
+        capturedPieceType: capturedPiece?.type ?? null,
+      })
+    : state.history;
+
   return {
     board: nextBoard,
     currentPlayer: state.currentPlayer === 'black' ? 'white' : 'black',
     hands: nextHands,
+    history: nextHistory,
   };
 }
 
@@ -494,14 +526,26 @@ function applyDropUnchecked(
   state: GameState,
   pieceType: HandPieceType,
   to: Position,
+  recordHistory = true,
 ): GameState {
   const nextBoard = cloneBoard(state.board);
   nextBoard[to.row][to.col] = createPiece(state.currentPlayer, pieceType);
+
+  const nextHistory = recordHistory
+    ? appendHistoryEntry(state.history, {
+        pieceType,
+        from: 'drop',
+        to,
+        isPromoted: false,
+        capturedPieceType: null,
+      })
+    : state.history;
 
   return {
     board: nextBoard,
     currentPlayer: state.currentPlayer === 'black' ? 'white' : 'black',
     hands: removePieceFromHand(state.hands, state.currentPlayer, pieceType),
+    history: nextHistory,
   };
 }
 
@@ -510,7 +554,7 @@ function wouldLeavePlayerInCheckAfterMove(
   from: Position,
   to: Position,
 ): boolean {
-  const nextState = applyMoveUnchecked(state, from, to);
+  const nextState = applyMoveUnchecked(state, from, to, false, false);
   return isInCheck(nextState, state.currentPlayer);
 }
 
@@ -519,7 +563,7 @@ function wouldLeavePlayerInCheckAfterDrop(
   pieceType: HandPieceType,
   to: Position,
 ): boolean {
-  const nextState = applyDropUnchecked(state, pieceType, to);
+  const nextState = applyDropUnchecked(state, pieceType, to, false);
   return isInCheck(nextState, state.currentPlayer);
 }
 

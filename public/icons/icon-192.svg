@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-labelledby="title desc">
+  <title id="title">Shogi App Icon</title>
+  <desc id="desc">A minimal shogi tile with the kanji-inspired letter S.</desc>
+  <rect width="192" height="192" rx="40" fill="#f6efe1" />
+  <rect x="20" y="20" width="152" height="152" rx="32" fill="#2f6f58" />
+  <path d="M96 42 138 72v56l-42 22-42-22V72Z" fill="#f4c96b" stroke="#7a551f" stroke-width="6" stroke-linejoin="round" />
+  <path d="M118 72c-8-8-18-12-30-12-18 0-30 9-30 23 0 15 13 20 27 23 16 4 24 7 24 17 0 9-8 15-19 15-10 0-20-4-30-12" fill="none" stroke="#2f2a22" stroke-width="10" stroke-linecap="round" />
+</svg>

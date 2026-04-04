@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { BoardView } from './components/BoardView';
 import { HandTray } from './components/HandTray';
+import { MoveHistory } from './components/MoveHistory';
 import {
   createInitialGameState,
   dropPiece,
@@ -269,6 +270,8 @@ function App() {
           onSquareClick={handleSquareClick}
           selectedPosition={selectedPosition}
         />
+
+        <MoveHistory history={gameState.history} />
 
         {showPromotionChoice ? (
           <div

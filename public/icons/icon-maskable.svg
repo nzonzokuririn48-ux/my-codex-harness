@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Shogi App Maskable Icon</title>
+  <desc id="desc">A maskable shogi icon with extra safe padding.</desc>
+  <rect width="512" height="512" fill="#2f6f58" />
+  <circle cx="256" cy="256" r="176" fill="#f6efe1" opacity="0.12" />
+  <path d="M256 144 344 208v128l-88 44-88-44V208Z" fill="#f4c96b" stroke="#7a551f" stroke-width="14" stroke-linejoin="round" />
+  <path d="M301 207c-16-17-36-25-61-25-37 0-61 18-61 45 0 30 25 39 54 46 32 8 50 14 50 31 0 18-16 29-39 29-21 0-42-8-63-25" fill="none" stroke="#2f2a22" stroke-width="22" stroke-linecap="round" />
+</svg>

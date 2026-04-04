@@ -47,6 +47,7 @@ button {
 
 .app-header {
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .app-header h1 {
@@ -78,6 +79,8 @@ button {
 .status-bar > div {
   display: grid;
   gap: 2px;
+  flex: 1 1 140px;
+  min-width: 0;
 }
 
 .status-label {
@@ -95,6 +98,7 @@ button {
   cursor: pointer;
   font-weight: 600;
   box-shadow: 0 8px 18px rgba(47, 111, 88, 0.16);
+  min-height: 44px;
 }
 
 .reset-button:hover,
@@ -132,6 +136,7 @@ button {
   cursor: pointer;
   font-weight: 600;
   box-shadow: 0 8px 18px rgba(179, 91, 35, 0.18);
+  min-height: 44px;
 }
 
 .hand-layout {
@@ -180,6 +185,7 @@ button {
   align-items: center;
   gap: 8px;
   cursor: pointer;
+  min-height: 44px;
 }
 
 .hand-piece-button.is-selected {
@@ -202,6 +208,8 @@ button {
 }
 
 .board-frame {
+  width: min(100%, 640px);
+  margin: 0 auto;
   background: linear-gradient(180deg, #d5af67 0%, #c5934c 100%);
   border-radius: 20px;
   padding: 14px;
@@ -210,6 +218,7 @@ button {
 
 .board-grid {
   display: grid;
+  width: 100%;
   grid-template-columns: repeat(9, 1fr);
   gap: 0;
   border: 2px solid rgba(82, 55, 12, 0.65);
@@ -217,6 +226,7 @@ button {
 
 .board-square {
   aspect-ratio: 1;
+  min-width: 0;
   border: 1px solid rgba(82, 55, 12, 0.45);
   background: rgba(243, 203, 124, 0.95);
   display: grid;
@@ -271,6 +281,60 @@ button {
   background: rgba(47, 111, 88, 0.78);
 }
 
+.move-history {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(92, 72, 31, 0.14);
+}
+
+.move-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.move-history-empty {
+  margin: 0;
+  color: #6b7280;
+}
+
+.move-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.move-history-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: start;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(92, 72, 31, 0.1);
+}
+
+.move-history-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.move-history-number {
+  color: #6b7280;
+}
+
+.move-history-text {
+  font-weight: 600;
+  word-break: break-word;
+}
+
 .help-text {
   margin: 18px 0 0;
 }
@@ -290,7 +354,84 @@ button {
     align-items: flex-start;
   }
 
+  .status-bar {
+    gap: 12px;
+  }
+
+  .game-banner {
+    align-items: stretch;
+  }
+
   .board-frame {
     padding: 10px;
+  }
+
+  .piece-chip {
+    border-radius: 10px 10px 5px 5px;
+    padding-top: 6px;
+  }
+
+  .piece-label {
+    font-size: clamp(0.8rem, 3vw, 1.05rem);
+  }
+}
+
+@media (max-width: 560px) {
+  .app-shell {
+    padding: 8px;
+  }
+
+  .app-panel {
+    padding: 14px;
+  }
+
+  .app-header h1 {
+    font-size: clamp(1.45rem, 7vw, 1.9rem);
+  }
+
+  .reset-button,
+  .play-again-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .game-banner {
+    padding: 12px 14px;
+  }
+
+  .move-history {
+    padding: 12px 14px;
+  }
+
+  .hand-tray {
+    padding: 12px 14px;
+  }
+
+  .hand-piece-list {
+    gap: 10px;
+  }
+
+  .hand-piece-button {
+    flex: 1 1 calc(33.333% - 10px);
+    justify-content: center;
+    padding: 10px 12px;
+  }
+
+  .board-frame {
+    width: min(100%, calc(100vw - 28px));
+    padding: 8px;
+  }
+
+  .board-square {
+    padding: 2px;
+  }
+
+  .piece-owner {
+    font-size: 0.58rem;
+  }
+
+  .target-dot {
+    width: 12px;
+    height: 12px;
   }
 }
