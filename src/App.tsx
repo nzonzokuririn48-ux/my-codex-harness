@@ -11,6 +11,7 @@ import {
   movePiece,
   type HandPieceType,
   type Piece,
+  type Player,
   type Position,
 } from './engine/shogi';
 
@@ -36,6 +37,10 @@ function getSelectionStatusText(
   }
 
   return getPieceStatusText(piece);
+}
+
+function getPlayerLabel(player: Player): string {
+  return player === 'black' ? 'Black' : 'White';
 }
 
 function App() {
@@ -193,9 +198,23 @@ function App() {
           </div>
           <div>
             <span className="status-label">Result</span>
-            <strong>{winner ? `${winner} wins` : 'in progress'}</strong>
+            <strong>{winner ? `${getPlayerLabel(winner)} wins` : 'in progress'}</strong>
           </div>
         </div>
+
+        {winner ? (
+          <div
+            style={{
+              marginBottom: '20px',
+              padding: '12px 16px',
+              borderRadius: '16px',
+              background: 'rgba(47, 111, 88, 0.12)',
+              border: '1px solid rgba(47, 111, 88, 0.24)',
+            }}
+          >
+            <strong>{getPlayerLabel(winner)} wins</strong>
+          </div>
+        ) : null}
 
         <div className="hand-layout">
           <HandTray

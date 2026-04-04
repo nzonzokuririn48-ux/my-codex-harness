@@ -13,6 +13,7 @@ import {
   createEmptyHands,
   dropPiece,
   getLegalDrops,
+  getWinner,
   isLegalDrop,
   type HandPieceType,
   type Hands,
@@ -410,5 +411,35 @@ describe('shogi engine', () => {
     expect(isLegalDrop(state, 'knight', { row: 0, col: 4 })).toBe(false);
     expect(isLegalDrop(state, 'knight', { row: 1, col: 4 })).toBe(false);
     expect(isLegalDrop(state, 'knight', { row: 2, col: 4 })).toBe(true);
+  });
+
+  it('returns white as the winner when the black king is missing', () => {
+    const state = createGameState(
+      createBoardWithPieces([{ piece: createPiece('white', 'king'), row: 0, col: 4 }]),
+      'black',
+    );
+
+    expect(getWinner(state)).toBe('white');
+  });
+
+  it('returns black as the winner when the white king is missing', () => {
+    const state = createGameState(
+      createBoardWithPieces([{ piece: createPiece('black', 'king'), row: 8, col: 4 }]),
+      'black',
+    );
+
+    expect(getWinner(state)).toBe('black');
+  });
+
+  it('returns null when both kings are present', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('white', 'king'), row: 0, col: 4 },
+        { piece: createPiece('black', 'king'), row: 8, col: 4 },
+      ]),
+      'black',
+    );
+
+    expect(getWinner(state)).toBeNull();
   });
 });
