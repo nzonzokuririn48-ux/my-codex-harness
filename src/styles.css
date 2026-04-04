@@ -93,6 +93,45 @@ button {
   color: #fff;
   padding: 10px 16px;
   cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 8px 18px rgba(47, 111, 88, 0.16);
+}
+
+.reset-button:hover,
+.play-again-button:hover {
+  filter: brightness(1.04);
+}
+
+.game-banner {
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.game-banner-success {
+  background: rgba(47, 111, 88, 0.12);
+  border: 1px solid rgba(47, 111, 88, 0.24);
+}
+
+.game-banner-warning {
+  background: rgba(186, 92, 34, 0.12);
+  border: 1px solid rgba(186, 92, 34, 0.24);
+}
+
+.play-again-button {
+  border: 0;
+  border-radius: 999px;
+  background: #b35b23;
+  color: #fff;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 8px 18px rgba(179, 91, 35, 0.18);
 }
 
 .hand-layout {

@@ -80,6 +80,11 @@ function App() {
     setPendingMove(null);
   };
 
+  const resetGame = () => {
+    setGameState(createInitialGameState());
+    resetInteractionState();
+  };
+
   const applyMove = (from: Position, to: Position, promote?: boolean) => {
     setGameState(movePiece(gameState, from, to, promote));
     resetInteractionState();
@@ -194,13 +199,10 @@ function App() {
           </div>
           <button
             className="reset-button"
-            onClick={() => {
-              setGameState(createInitialGameState());
-              resetInteractionState();
-            }}
+            onClick={resetGame}
             type="button"
           >
-            Reset
+            Reset game
           </button>
         </header>
 
@@ -225,40 +227,19 @@ function App() {
           </div>
         </div>
 
-        {captureWinner ? (
-          <div
-            style={{
-              marginBottom: '20px',
-              padding: '12px 16px',
-              borderRadius: '16px',
-              background: 'rgba(47, 111, 88, 0.12)',
-              border: '1px solid rgba(47, 111, 88, 0.24)',
-            }}
-          >
-            <strong>{getPlayerLabel(captureWinner)} wins</strong>
-          </div>
-        ) : checkmateWinner ? (
-          <div
-            style={{
-              marginBottom: '20px',
-              padding: '12px 16px',
-              borderRadius: '16px',
-              background: 'rgba(47, 111, 88, 0.12)',
-              border: '1px solid rgba(47, 111, 88, 0.24)',
-            }}
-          >
-            <strong>{getPlayerLabel(checkmateWinner)} wins by checkmate</strong>
+        {winner ? (
+          <div className="game-banner game-banner-success">
+            <strong>
+              {captureWinner
+                ? `${getPlayerLabel(captureWinner)} wins`
+                : `${getPlayerLabel(checkmateWinner!)} wins by checkmate`}
+            </strong>
+            <button className="play-again-button" onClick={resetGame} type="button">
+              Play again
+            </button>
           </div>
         ) : checkedPlayer ? (
-          <div
-            style={{
-              marginBottom: '20px',
-              padding: '12px 16px',
-              borderRadius: '16px',
-              background: 'rgba(186, 92, 34, 0.12)',
-              border: '1px solid rgba(186, 92, 34, 0.24)',
-            }}
-          >
+          <div className="game-banner game-banner-warning">
             <strong>{getPlayerLabel(checkedPlayer)} is in check</strong>
           </div>
         ) : null}
