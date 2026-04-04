@@ -13,6 +13,7 @@ import {
   createEmptyHands,
   dropPiece,
   getLegalDrops,
+  isInCheck,
   getWinner,
   isLegalDrop,
   type HandPieceType,
@@ -441,5 +442,61 @@ describe('shogi engine', () => {
     );
 
     expect(getWinner(state)).toBeNull();
+  });
+
+  it('detects the black king in check from a rook', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('black', 'king'), row: 8, col: 4 },
+        { piece: createPiece('white', 'rook'), row: 4, col: 4 },
+      ]),
+      'black',
+    );
+
+    expect(isInCheck(state, 'black')).toBe(true);
+  });
+
+  it('detects the white king in check from a bishop', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('white', 'king'), row: 0, col: 4 },
+        { piece: createPiece('black', 'bishop'), row: 4, col: 0 },
+      ]),
+      'black',
+    );
+
+    expect(isInCheck(state, 'white')).toBe(true);
+  });
+
+  it('does not report check when an attack path is blocked', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('black', 'king'), row: 8, col: 4 },
+        { piece: createPiece('white', 'rook'), row: 4, col: 4 },
+        { piece: createPiece('black', 'gold'), row: 6, col: 4 },
+      ]),
+      'black',
+    );
+
+    expect(isInCheck(state, 'black')).toBe(false);
+  });
+
+  it('does not report check in the normal initial position', () => {
+    const state = createInitialGameState();
+
+    expect(isInCheck(state, 'black')).toBe(false);
+    expect(isInCheck(state, 'white')).toBe(false);
+  });
+
+  it('handles promoted attacking pieces when checking a king', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('white', 'king'), row: 0, col: 4 },
+        { piece: createPiece('black', 'rook', true), row: 1, col: 3 },
+      ]),
+      'black',
+    );
+
+    expect(isInCheck(state, 'white')).toBe(true);
   });
 });

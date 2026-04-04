@@ -408,10 +408,10 @@ function getMoveProfile(piece: Piece): {
   }
 }
 
-export function getLegalMoves(state: GameState, from: Position): Position[] {
+function getMovesForPieceAt(state: GameState, from: Position): Position[] {
   const piece = state.board[from.row]?.[from.col];
 
-  if (!piece || piece.owner !== state.currentPlayer) {
+  if (!piece) {
     return [];
   }
 
@@ -421,6 +421,16 @@ export function getLegalMoves(state: GameState, from: Position): Position[] {
     ...collectStepMoves(state, from, moveProfile.stepDirections),
     ...collectSlidingMoves(state, from, moveProfile.slidingDirections),
   ];
+}
+
+export function getLegalMoves(state: GameState, from: Position): Position[] {
+  const piece = state.board[from.row]?.[from.col];
+
+  if (!piece || piece.owner !== state.currentPlayer) {
+    return [];
+  }
+
+  return getMovesForPieceAt(state, from);
 }
 
 export function isLegalMove(state: GameState, from: Position, to: Position): boolean {
@@ -542,6 +552,57 @@ export function dropPiece(
     currentPlayer: state.currentPlayer === 'black' ? 'white' : 'black',
     hands: removePieceFromHand(state.hands, state.currentPlayer, pieceType),
   };
+}
+
+export function findKingPosition(state: GameState, owner: Player): Position | null {
+  for (let row = 0; row < BOARD_SIZE; row += 1) {
+    for (let col = 0; col < BOARD_SIZE; col += 1) {
+      const square = state.board[row][col];
+      if (square?.owner === owner && square.type === 'king') {
+        return { row, col };
+      }
+    }
+  }
+
+  return null;
+}
+
+export function isSquareAttackedBy(
+  state: GameState,
+  target: Position,
+  attacker: Player,
+): boolean {
+  for (let row = 0; row < BOARD_SIZE; row += 1) {
+    for (let col = 0; col < BOARD_SIZE; col += 1) {
+      const square = state.board[row][col];
+
+      if (!square || square.owner !== attacker) {
+        continue;
+      }
+
+      const attacks = getMovesForPieceAt(state, { row, col });
+      const isAttackTarget = attacks.some(
+        (move) => move.row === target.row && move.col === target.col,
+      );
+
+      if (isAttackTarget) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+export function isInCheck(state: GameState, owner: Player): boolean {
+  const kingPosition = findKingPosition(state, owner);
+
+  if (!kingPosition) {
+    return false;
+  }
+
+  const attacker = owner === 'black' ? 'white' : 'black';
+  return isSquareAttackedBy(state, kingPosition, attacker);
 }
 
 export function movePiece(

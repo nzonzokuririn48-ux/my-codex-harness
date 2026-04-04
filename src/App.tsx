@@ -4,6 +4,7 @@ import { HandTray } from './components/HandTray';
 import {
   createInitialGameState,
   dropPiece,
+  isInCheck,
   getLegalDrops,
   getLegalMoves,
   getPromotionState,
@@ -50,6 +51,16 @@ function App() {
   const [pendingMove, setPendingMove] = useState<PendingMove | null>(null);
   const winner = getWinner(gameState);
   const showPromotionChoice = pendingMove !== null;
+  const currentPlayerCheck = isInCheck(gameState, gameState.currentPlayer);
+  const otherPlayer = gameState.currentPlayer === 'black' ? 'white' : 'black';
+  const otherPlayerCheck = isInCheck(gameState, otherPlayer);
+  const checkedPlayer = winner
+    ? null
+    : currentPlayerCheck
+      ? gameState.currentPlayer
+      : otherPlayerCheck
+        ? otherPlayer
+        : null;
 
   const legalTargets = selectedPosition
     ? getLegalMoves(gameState, selectedPosition)
@@ -213,6 +224,18 @@ function App() {
             }}
           >
             <strong>{getPlayerLabel(winner)} wins</strong>
+          </div>
+        ) : checkedPlayer ? (
+          <div
+            style={{
+              marginBottom: '20px',
+              padding: '12px 16px',
+              borderRadius: '16px',
+              background: 'rgba(186, 92, 34, 0.12)',
+              border: '1px solid rgba(186, 92, 34, 0.24)',
+            }}
+          >
+            <strong>{getPlayerLabel(checkedPlayer)} is in check</strong>
           </div>
         ) : null}
 
