@@ -499,4 +499,102 @@ describe('shogi engine', () => {
 
     expect(isInCheck(state, 'white')).toBe(true);
   });
+
+  it('cannot move a pinned piece if that would expose the king', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('white', 'king'), row: 0, col: 0 },
+        { piece: createPiece('white', 'rook'), row: 4, col: 4 },
+        { piece: createPiece('black', 'gold'), row: 7, col: 4 },
+        { piece: createPiece('black', 'king'), row: 8, col: 4 },
+      ]),
+      'black',
+    );
+
+    expect(sortMoves(getLegalMoves(state, { row: 7, col: 4 }))).toEqual(['6,4']);
+    expect(isLegalMove(state, { row: 7, col: 4 }, { row: 7, col: 3 })).toBe(false);
+  });
+
+  it('cannot move a king onto an attacked square', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('white', 'king'), row: 0, col: 0 },
+        { piece: createPiece('white', 'rook'), row: 4, col: 3 },
+        { piece: createPiece('black', 'king'), row: 8, col: 4 },
+      ]),
+      'black',
+    );
+
+    expect(isLegalMove(state, { row: 8, col: 4 }, { row: 8, col: 3 })).toBe(false);
+  });
+
+  it('keeps a legal king escape move available while in check', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('white', 'king'), row: 0, col: 0 },
+        { piece: createPiece('white', 'rook'), row: 5, col: 4 },
+        { piece: createPiece('black', 'king'), row: 8, col: 4 },
+      ]),
+      'black',
+    );
+
+    expect(isLegalMove(state, { row: 8, col: 4 }, { row: 8, col: 3 })).toBe(true);
+  });
+
+  it('keeps a legal blocking move available while in check', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('white', 'king'), row: 0, col: 0 },
+        { piece: createPiece('white', 'rook'), row: 5, col: 4 },
+        { piece: createPiece('black', 'gold'), row: 8, col: 3 },
+        { piece: createPiece('black', 'king'), row: 8, col: 4 },
+      ]),
+      'black',
+    );
+
+    expect(isLegalMove(state, { row: 8, col: 3 }, { row: 7, col: 4 })).toBe(true);
+  });
+
+  it('keeps a legal capture of the attacking piece available while in check', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('white', 'king'), row: 0, col: 0 },
+        { piece: createPiece('white', 'rook'), row: 7, col: 4 },
+        { piece: createPiece('black', 'gold'), row: 8, col: 3 },
+        { piece: createPiece('black', 'king'), row: 8, col: 4 },
+      ]),
+      'black',
+    );
+
+    expect(isLegalMove(state, { row: 8, col: 3 }, { row: 7, col: 4 })).toBe(true);
+  });
+
+  it('rejects drops that leave the current player in check', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('white', 'king'), row: 0, col: 0 },
+        { piece: createPiece('white', 'rook'), row: 4, col: 4 },
+        { piece: createPiece('black', 'king'), row: 8, col: 4 },
+      ]),
+      'black',
+      createHands('black', 'silver'),
+    );
+
+    expect(isLegalDrop(state, 'silver', { row: 4, col: 0 })).toBe(false);
+    expect(sortMoves(getLegalDrops(state, 'silver'))).not.toContain('4,0');
+  });
+
+  it('allows drops that resolve check', () => {
+    const state = createGameState(
+      createBoardWithPieces([
+        { piece: createPiece('white', 'king'), row: 0, col: 0 },
+        { piece: createPiece('white', 'rook'), row: 4, col: 4 },
+        { piece: createPiece('black', 'king'), row: 8, col: 4 },
+      ]),
+      'black',
+      createHands('black', 'silver'),
+    );
+
+    expect(isLegalDrop(state, 'silver', { row: 6, col: 4 })).toBe(true);
+  });
 });

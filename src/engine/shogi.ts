@@ -423,6 +423,84 @@ function getMovesForPieceAt(state: GameState, from: Position): Position[] {
   ];
 }
 
+function applyMoveUnchecked(
+  state: GameState,
+  from: Position,
+  to: Position,
+  promote = false,
+): GameState {
+  const piece = state.board[from.row]?.[from.col];
+
+  if (!piece) {
+    throw new Error('No piece at source position');
+  }
+
+  const promoState = getPromotionState(piece, from.row, to.row);
+  const shouldPromote =
+    promoState === 'required' || (promoState === 'optional' && promote);
+  const capturedPiece = state.board[to.row][to.col];
+
+  const nextBoard = cloneBoard(state.board);
+  const movingPiece = nextBoard[from.row][from.col];
+  let nextHands = cloneHands(state.hands);
+
+  if (!movingPiece) {
+    throw new Error('No piece at source position');
+  }
+
+  if (capturedPiece && capturedPiece.owner !== state.currentPlayer) {
+    const capturedPieceType = demoteCapturedPiece(capturedPiece);
+    if (capturedPieceType) {
+      nextHands = addPieceToHand(nextHands, state.currentPlayer, capturedPieceType);
+    }
+  }
+
+  nextBoard[from.row][from.col] = null;
+  nextBoard[to.row][to.col] = {
+    ...movingPiece,
+    isPromoted: shouldPromote ? true : movingPiece.isPromoted,
+  };
+
+  return {
+    board: nextBoard,
+    currentPlayer: state.currentPlayer === 'black' ? 'white' : 'black',
+    hands: nextHands,
+  };
+}
+
+function applyDropUnchecked(
+  state: GameState,
+  pieceType: HandPieceType,
+  to: Position,
+): GameState {
+  const nextBoard = cloneBoard(state.board);
+  nextBoard[to.row][to.col] = createPiece(state.currentPlayer, pieceType);
+
+  return {
+    board: nextBoard,
+    currentPlayer: state.currentPlayer === 'black' ? 'white' : 'black',
+    hands: removePieceFromHand(state.hands, state.currentPlayer, pieceType),
+  };
+}
+
+function wouldLeavePlayerInCheckAfterMove(
+  state: GameState,
+  from: Position,
+  to: Position,
+): boolean {
+  const nextState = applyMoveUnchecked(state, from, to);
+  return isInCheck(nextState, state.currentPlayer);
+}
+
+function wouldLeavePlayerInCheckAfterDrop(
+  state: GameState,
+  pieceType: HandPieceType,
+  to: Position,
+): boolean {
+  const nextState = applyDropUnchecked(state, pieceType, to);
+  return isInCheck(nextState, state.currentPlayer);
+}
+
 export function getLegalMoves(state: GameState, from: Position): Position[] {
   const piece = state.board[from.row]?.[from.col];
 
@@ -430,7 +508,9 @@ export function getLegalMoves(state: GameState, from: Position): Position[] {
     return [];
   }
 
-  return getMovesForPieceAt(state, from);
+  return getMovesForPieceAt(state, from).filter(
+    (to) => !wouldLeavePlayerInCheckAfterMove(state, from, to),
+  );
 }
 
 export function isLegalMove(state: GameState, from: Position, to: Position): boolean {
@@ -522,7 +602,10 @@ export function getLegalDrops(state: GameState, pieceType: HandPieceType): Posit
   for (let row = 0; row < BOARD_SIZE; row += 1) {
     for (let col = 0; col < BOARD_SIZE; col += 1) {
       const position = { row, col };
-      if (getDropRuleViolations(state, pieceType, position).length === 0) {
+      if (
+        getDropRuleViolations(state, pieceType, position).length === 0 &&
+        !wouldLeavePlayerInCheckAfterDrop(state, pieceType, position)
+      ) {
         legalDrops.push(position);
       }
     }
@@ -532,7 +615,10 @@ export function getLegalDrops(state: GameState, pieceType: HandPieceType): Posit
 }
 
 export function isLegalDrop(state: GameState, pieceType: HandPieceType, to: Position): boolean {
-  return getDropRuleViolations(state, pieceType, to).length === 0;
+  return (
+    getDropRuleViolations(state, pieceType, to).length === 0 &&
+    !wouldLeavePlayerInCheckAfterDrop(state, pieceType, to)
+  );
 }
 
 export function dropPiece(
@@ -544,14 +630,7 @@ export function dropPiece(
     throw new Error('Illegal drop');
   }
 
-  const nextBoard = cloneBoard(state.board);
-  nextBoard[to.row][to.col] = createPiece(state.currentPlayer, pieceType);
-
-  return {
-    board: nextBoard,
-    currentPlayer: state.currentPlayer === 'black' ? 'white' : 'black',
-    hands: removePieceFromHand(state.hands, state.currentPlayer, pieceType),
-  };
+  return applyDropUnchecked(state, pieceType, to);
 }
 
 export function findKingPosition(state: GameState, owner: Player): Position | null {
@@ -615,43 +694,7 @@ export function movePiece(
     throw new Error('Illegal move');
   }
 
-  const piece = state.board[from.row]?.[from.col];
-
-  if (!piece) {
-    throw new Error('No piece at source position');
-  }
-
-  const promoState = getPromotionState(piece, from.row, to.row);
-  const shouldPromote =
-    promoState === 'required' || (promoState === 'optional' && promote);
-  const capturedPiece = state.board[to.row][to.col];
-
-  const nextBoard = cloneBoard(state.board);
-  const movingPiece = nextBoard[from.row][from.col];
-  let nextHands = cloneHands(state.hands);
-
-  if (!movingPiece) {
-    throw new Error('No piece at source position');
-  }
-
-  if (capturedPiece && capturedPiece.owner !== state.currentPlayer) {
-    const capturedPieceType = demoteCapturedPiece(capturedPiece);
-    if (capturedPieceType) {
-      nextHands = addPieceToHand(nextHands, state.currentPlayer, capturedPieceType);
-    }
-  }
-
-  nextBoard[from.row][from.col] = null;
-  nextBoard[to.row][to.col] = {
-    ...movingPiece,
-    isPromoted: shouldPromote ? true : movingPiece.isPromoted,
-  };
-
-  return {
-    board: nextBoard,
-    currentPlayer: state.currentPlayer === 'black' ? 'white' : 'black',
-    hands: nextHands,
-  };
+  return applyMoveUnchecked(state, from, to, promote);
 }
 
 export function getWinner(state: GameState): Player | null {
