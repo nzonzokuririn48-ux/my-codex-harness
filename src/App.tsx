@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BoardView } from './components/BoardView';
 import { HandTray } from './components/HandTray';
 import { MoveHistory } from './components/MoveHistory';
+import { StartPrompt } from './components/StartPrompt';
 import {
   createInitialGameState,
   dropPiece,
@@ -18,11 +19,20 @@ import {
   type Player,
   type Position,
 } from './engine/shogi';
-import { createInitialPersistedGameState, persistGameState } from './lib/persistence';
+import {
+  clearPersistedGameState,
+  loadPersistedGameState,
+  persistGameState,
+} from './lib/persistence';
 
 type PendingMove = {
   from: Position;
   to: Position;
+};
+
+type StartFlowState = {
+  requiresChoice: boolean;
+  savedGame: GameState | null;
 };
 
 function getPieceStatusText(piece: Piece | null | undefined): string {
@@ -48,8 +58,18 @@ function getPlayerLabel(player: Player): string {
   return player === 'black' ? 'Black' : 'White';
 }
 
+function createStartFlowState(): StartFlowState {
+  const savedGame = loadPersistedGameState();
+
+  return {
+    requiresChoice: savedGame !== null,
+    savedGame,
+  };
+}
+
 function App() {
-  const [gameState, setGameState] = useState(() => createInitialPersistedGameState());
+  const [startFlowState, setStartFlowState] = useState(() => createStartFlowState());
+  const [gameState, setGameState] = useState(() => createInitialGameState());
   const [previousStates, setPreviousStates] = useState<GameState[]>([]);
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
   const [selectedHandPiece, setSelectedHandPiece] = useState<HandPieceType | null>(null);
@@ -80,8 +100,12 @@ function App() {
   const canUndo = previousStates.length > 0 && !showPromotionChoice;
 
   useEffect(() => {
+    if (startFlowState.requiresChoice) {
+      return;
+    }
+
     persistGameState(gameState);
-  }, [gameState]);
+  }, [gameState, startFlowState.requiresChoice]);
 
   const resetInteractionState = () => {
     setSelectedPosition(null);
@@ -93,6 +117,35 @@ function App() {
     setGameState(createInitialGameState());
     setPreviousStates([]);
     resetInteractionState();
+  };
+
+  const handleContinueSavedGame = () => {
+    if (!startFlowState.savedGame) {
+      setStartFlowState({
+        requiresChoice: false,
+        savedGame: null,
+      });
+      return;
+    }
+
+    setGameState(startFlowState.savedGame);
+    setPreviousStates([]);
+    resetInteractionState();
+    setStartFlowState({
+      requiresChoice: false,
+      savedGame: null,
+    });
+  };
+
+  const handleStartNewGame = () => {
+    clearPersistedGameState();
+    setGameState(createInitialGameState());
+    setPreviousStates([]);
+    resetInteractionState();
+    setStartFlowState({
+      requiresChoice: false,
+      savedGame: null,
+    });
   };
 
   const applyMove = (from: Position, to: Position, promote?: boolean) => {
@@ -216,6 +269,15 @@ function App() {
   const activePiece = selectedPosition
     ? gameState.board[selectedPosition.row][selectedPosition.col]
     : null;
+
+  if (startFlowState.requiresChoice) {
+    return (
+      <StartPrompt
+        onContinue={handleContinueSavedGame}
+        onStartNew={handleStartNewGame}
+      />
+    );
+  }
 
   return (
     <main className="app-shell">

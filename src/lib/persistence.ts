@@ -172,6 +172,18 @@ export function persistGameState(state: GameState): void {
   }
 }
 
+export function clearPersistedGameState(): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // Ignore persistence failures and keep the live game usable.
+  }
+}
+
 export function createInitialPersistedGameState(): GameState {
   return loadPersistedGameState() ?? createInitialGameState();
 }
