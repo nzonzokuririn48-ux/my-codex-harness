@@ -29,12 +29,6 @@ type BoardViewProps = {
 };
 
 const GRID_OFFSETS = Array.from({ length: 8 }, (_, index) => index + 1);
-const STAR_POINTS = [
-  { row: 2.5, col: 2.5 },
-  { row: 2.5, col: 6.5 },
-  { row: 6.5, col: 2.5 },
-  { row: 6.5, col: 6.5 },
-];
 
 function positionsMatch(left: Position | null, right: Position): boolean {
   return Boolean(left && left.row === right.row && left.col === right.col);
@@ -115,15 +109,6 @@ export function BoardView({
               x2="9"
               y1={offset}
               y2={offset}
-            />
-          ))}
-          {STAR_POINTS.map((point) => (
-            <circle
-              key={`${point.row}-${point.col}`}
-              className="board-grid-star"
-              cx={point.col}
-              cy={point.row}
-              r="0.11"
             />
           ))}
         </svg>

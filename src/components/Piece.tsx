@@ -110,44 +110,44 @@ export function Piece({ type, isPromoted, owner }: PieceProps) {
             <feDropShadow dx="0" dy="5" floodColor="rgba(58,33,10,0.22)" stdDeviation="4" />
           </filter>
         </defs>
-        <polygon
+        <path
           className="svg-piece-shell"
           fill={`url(#${woodGradientId})`}
           filter={`url(#${shadowId})`}
-          points="50,6 89,20 85,56 79,114 21,114 15,56 11,20"
+          d="M10 6 L90 6 L82 82 L50 96 L18 82 Z"
         />
-        <polygon
+        <path
           className="svg-piece-grain"
           fill={`url(#${grainGradientId})`}
-          points="50,10 83,23 80,55 74,108 26,108 20,55 17,23"
+          d="M17 12 L83 12 L76 77 L50 88 L24 77 Z"
         />
-        <polygon
+        <path
           className="svg-piece-highlight"
           fill={`url(#${highlightGradientId})`}
-          points="50,10 83,23 81,48 19,48 17,23"
+          d="M18 12 L82 12 L78 46 L22 46 Z"
         />
-        <polygon
+        <path
           className="svg-piece-player-tint"
           fill={`url(#${tintGradientId})`}
-          points="50,10 83,23 80,55 74,108 26,108 20,55 17,23"
+          d="M17 12 L83 12 L76 77 L50 88 L24 77 Z"
         />
-        <polygon
+        <path
           className="svg-piece-bottom-shadow"
           fill={`url(#${bottomShadeId})`}
-          points="50,44 78,56 74,108 26,108 22,56"
+          d="M23 56 L77 56 L73 79 L50 89 L27 79 Z"
         />
         {isPromoted ? (
           <path
             className="svg-piece-promo-band"
-            d="M31 22 L69 22 L65 33 L35 33 Z"
+            d="M30 18 L70 18 L66 29 L34 29 Z"
             fill={`url(#${accentGradientId})`}
           />
         ) : null}
-        <polygon
+        <path
           className="svg-piece-border"
-          points="50,11 84,24 81,56 74,108 26,108 19,56 16,24"
+          d="M14 10 L86 10 L79 79 L50 92 L21 79 Z"
         />
-        <foreignObject className="svg-piece-glyph-box" x="22" y="31" width="56" height="62">
+        <foreignObject className="svg-piece-glyph-box" x="21" y="26" width="58" height="54">
           <div className="svg-piece-glyph">
             {label}
           </div>

@@ -12,7 +12,7 @@ export function MoveHistory({ history, onExport }: MoveHistoryProps) {
       <div className="move-history-header">
         <div className="move-history-summary">
           <span className="status-label">Kifu</span>
-          <strong>{history.length} moves</strong>
+          <strong>{history.length}手</strong>
         </div>
         <button
           className="secondary-button move-history-export"
@@ -25,7 +25,7 @@ export function MoveHistory({ history, onExport }: MoveHistoryProps) {
       </div>
 
       {history.length === 0 ? (
-        <p className="move-history-empty">No moves yet.</p>
+        <p className="move-history-empty">まだ指し手はありません。</p>
       ) : (
         <ol className="move-history-list">
           {history.map((entry, index) => (
