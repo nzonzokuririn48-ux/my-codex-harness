@@ -40,8 +40,13 @@ export function HandTray({
         .join(' ')}
     >
       <div className="hand-tray-header">
-        <span className="status-label">Hand</span>
-        <strong>{owner === 'black' ? 'Black' : 'White'}</strong>
+        <div className="hand-tray-summary">
+          <span className="status-label">Hand</span>
+          <strong>{owner === 'black' ? 'Black' : 'White'}</strong>
+        </div>
+        <span className={`hand-tray-state ${isActive ? 'is-active' : ''}`}>
+          {isDisabled ? 'Locked' : isActive ? 'Active' : 'Waiting'}
+        </span>
       </div>
 
       <div className="hand-piece-list">
@@ -55,6 +60,7 @@ export function HandTray({
               className={[
                 'hand-piece-button',
                 isSelected ? 'is-selected' : '',
+                count > 0 && isActive && !isDisabled ? 'is-available' : '',
               ]
                 .filter(Boolean)
                 .join(' ')}

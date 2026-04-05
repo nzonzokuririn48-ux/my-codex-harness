@@ -76,6 +76,64 @@ function getSetupModeLabel(mode: SetupMode): string {
   return mode === 'random' ? 'Random' : 'Standard';
 }
 
+function getInteractionHint(args: {
+  selectedPosition: Position | null;
+  selectedHandPiece: HandPieceType | null;
+  showPromotionChoice: boolean;
+  isCpuTurn: boolean;
+  winner: Player | null;
+}): { title: string; detail: string; tone: 'neutral' | 'attention' | 'info' } | null {
+  const {
+    selectedPosition,
+    selectedHandPiece,
+    showPromotionChoice,
+    isCpuTurn,
+    winner,
+  } = args;
+
+  if (winner) {
+    return null;
+  }
+
+  if (showPromotionChoice) {
+    return {
+      title: 'Promotion choice',
+      detail: 'Choose whether to promote before play continues.',
+      tone: 'attention',
+    };
+  }
+
+  if (isCpuTurn) {
+    return {
+      title: 'CPU turn',
+      detail: 'The board and hands are temporarily locked while White is choosing a move.',
+      tone: 'info',
+    };
+  }
+
+  if (selectedHandPiece) {
+    return {
+      title: 'Drop mode',
+      detail: `Place the selected ${selectedHandPiece} on a highlighted square.`,
+      tone: 'attention',
+    };
+  }
+
+  if (selectedPosition) {
+    return {
+      title: 'Move mode',
+      detail: 'Choose one of the highlighted destination squares.',
+      tone: 'neutral',
+    };
+  }
+
+  return {
+    title: 'Ready',
+    detail: 'Select one of the active player\'s pieces or choose a piece from hand.',
+    tone: 'neutral',
+  };
+}
+
 function createStartFlowState(): StartFlowState {
   const savedGame = loadPersistedGameState();
 
@@ -159,6 +217,7 @@ function App() {
     winner === null &&
     !showPromotionChoice &&
     !startFlowState.requiresChoice;
+  const isInteractionLocked = showPromotionChoice || isCpuTurn || winner !== null;
 
   const legalTargets = selectedPosition
     ? getLegalMoves(gameState, selectedPosition)
@@ -166,6 +225,13 @@ function App() {
       ? getLegalDrops(gameState, selectedHandPiece)
       : [];
   const canUndo = previousStates.length > 0 && !showPromotionChoice && !isCpuTurn;
+  const interactionHint = getInteractionHint({
+    selectedPosition,
+    selectedHandPiece,
+    showPromotionChoice,
+    isCpuTurn,
+    winner,
+  });
 
   useEffect(() => {
     if (startFlowState.requiresChoice) {
@@ -437,7 +503,7 @@ function App() {
 
   return (
     <main className="app-shell">
-      <section className="app-panel">
+      <section className={['app-panel', isInteractionLocked ? 'is-locked' : ''].filter(Boolean).join(' ')}>
         <header className="app-header">
           <div>
             <p className="eyebrow">Local Shogi</p>
@@ -544,11 +610,18 @@ function App() {
           </div>
         ) : null}
 
+        {interactionHint ? (
+          <div className={`interaction-strip is-${interactionHint.tone}`}>
+            <strong>{interactionHint.title}</strong>
+            <span>{interactionHint.detail}</span>
+          </div>
+        ) : null}
+
         <div className="hand-layout">
           <HandTray
             hand={gameState.hands.white}
             isActive={gameState.currentPlayer === 'white'}
-            isDisabled={showPromotionChoice || winner !== null || isCpuTurn}
+            isDisabled={isInteractionLocked}
             onSelectPiece={handleHandPieceSelect}
             owner="white"
             selectedPiece={gameState.currentPlayer === 'white' ? selectedHandPiece : null}
@@ -556,7 +629,7 @@ function App() {
           <HandTray
             hand={gameState.hands.black}
             isActive={gameState.currentPlayer === 'black'}
-            isDisabled={showPromotionChoice || winner !== null || isCpuTurn}
+            isDisabled={isInteractionLocked}
             onSelectPiece={handleHandPieceSelect}
             owner="black"
             selectedPiece={gameState.currentPlayer === 'black' ? selectedHandPiece : null}
@@ -565,9 +638,11 @@ function App() {
 
         <BoardView
           board={gameState.board}
+          interactionDisabled={isInteractionLocked}
           legalMoves={legalTargets}
           onSquareClick={handleSquareClick}
           selectedPosition={selectedPosition}
+          selectionMode={selectedHandPiece ? 'drop' : selectedPosition ? 'move' : 'idle'}
         />
 
         <MoveHistory history={gameState.history} onExport={handleExportMoves} />

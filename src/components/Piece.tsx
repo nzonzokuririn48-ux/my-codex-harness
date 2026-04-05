@@ -35,6 +35,10 @@ export function Piece({ type, isPromoted, owner }: PieceProps) {
           points="50,5 92,28 79,113 21,113 8,28"
         />
         <polygon
+          className="svg-piece-owner-accent"
+          points="50,14 76,29 69,38 31,38 24,29"
+        />
+        <polygon
           className="svg-piece-border"
           points="50,11 84,30 73,105 27,105 16,30"
         />
