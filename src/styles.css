@@ -300,6 +300,14 @@ button {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
+.hand-piece-visual {
+  width: 36px;
+  height: 42px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
 .hand-piece-button.is-selected {
   background: linear-gradient(180deg, #775126 0%, #5d3c18 100%);
   color: #ffffff;
@@ -376,53 +384,72 @@ button {
   box-shadow: inset 0 0 0 1px rgba(121, 79, 24, 0.22);
 }
 
-.piece-chip {
-  width: min(86%, 54px);
-  height: min(92%, 62px);
-  clip-path: polygon(50% 2%, 96% 22%, 82% 100%, 18% 100%, 4% 22%);
+.svg-piece {
+  width: 100%;
+  height: 100%;
   display: grid;
   place-items: center;
-  padding: 8px 4px 6px;
-  gap: 2px;
-  border: 1px solid rgba(71, 46, 17, 0.34);
-  background:
-    linear-gradient(180deg, #fff7e5 0%, #f1ddae 62%, #e4cb8b 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.72),
-    0 4px 10px rgba(87, 56, 18, 0.14);
 }
 
-.piece-chip.owner-black {
-  color: #22170d;
+.svg-piece-graphic {
+  width: min(88%, 60px);
+  height: min(94%, 70px);
+  overflow: visible;
+  filter: drop-shadow(0 4px 8px rgba(81, 50, 16, 0.16));
 }
 
-.piece-chip.owner-white {
-  color: #364152;
+.svg-piece.owner-white .svg-piece-graphic {
+  transform: rotate(180deg);
 }
 
-.piece-chip.is-promoted {
-  border-color: rgba(154, 52, 18, 0.44);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.72),
-    0 4px 12px rgba(154, 52, 18, 0.12);
+.svg-piece-shell {
+  fill: #fff7e6;
+  stroke: rgba(84, 53, 18, 0.44);
+  stroke-width: 2.2;
 }
 
-.piece-owner {
-  font-size: 0.46rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  opacity: 0.82;
+.svg-piece.owner-white .svg-piece-shell {
+  fill: #f4ecdd;
 }
 
-.piece-label {
+.svg-piece-border {
+  fill: rgba(233, 207, 150, 0.5);
+  stroke: rgba(255, 255, 255, 0.46);
+  stroke-width: 1.5;
+}
+
+.svg-piece-glyph {
+  fill: #26180c;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(1rem, 2vw, 1.35rem);
+  font-size: 36px;
   font-weight: 700;
-  line-height: 1;
+  dominant-baseline: middle;
 }
 
-.piece-chip.is-promoted .piece-label {
-  color: #9a3412;
+.svg-piece.owner-white .svg-piece-glyph {
+  fill: #3b4658;
+}
+
+.svg-piece-promo-band {
+  fill: rgba(154, 52, 18, 0.14);
+  stroke: rgba(154, 52, 18, 0.32);
+  stroke-width: 1;
+}
+
+.svg-piece-promo-mark {
+  fill: #9a3412;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.svg-piece.is-promoted .svg-piece-shell {
+  fill: #fff1e5;
+  stroke: rgba(154, 52, 18, 0.48);
+}
+
+.svg-piece.is-promoted .svg-piece-glyph {
+  fill: #9a3412;
 }
 
 .target-dot {
@@ -554,14 +581,9 @@ button {
     padding: 10px;
   }
 
-  .piece-chip {
-    width: min(88%, 46px);
-    height: min(92%, 52px);
-    padding-top: 7px;
-  }
-
-  .piece-label {
-    font-size: clamp(0.85rem, 3vw, 1.08rem);
+  .svg-piece-graphic {
+    width: min(88%, 52px);
+    height: min(94%, 60px);
   }
 }
 
@@ -624,6 +646,11 @@ button {
     padding: 10px 12px;
   }
 
+  .hand-piece-visual {
+    width: 32px;
+    height: 38px;
+  }
+
   .board-frame {
     width: min(100%, calc(100vw - 28px));
     padding: 8px;
@@ -631,10 +658,6 @@ button {
 
   .board-square {
     padding: 2px;
-  }
-
-  .piece-owner {
-    font-size: 0.42rem;
   }
 
   .target-dot {

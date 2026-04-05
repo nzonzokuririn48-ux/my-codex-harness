@@ -1,4 +1,5 @@
-import { PIECE_LABELS, type Board, type Position } from '../engine/shogi';
+import { type Board, type Position } from '../engine/shogi';
+import { Piece } from './Piece';
 
 type BoardViewProps = {
   board: Board;
@@ -13,10 +14,6 @@ function positionsMatch(left: Position | null, right: Position): boolean {
 
 function isLegalTarget(position: Position, legalMoves: Position[]): boolean {
   return legalMoves.some((move) => move.row === position.row && move.col === position.col);
-}
-
-function getPieceLabel(label: string, isPromoted: boolean): string {
-  return isPromoted ? `+${label}` : label;
 }
 
 export function BoardView({
@@ -48,20 +45,11 @@ export function BoardView({
                 type="button"
               >
                 {piece ? (
-                  <span
-                    className={[
-                      'piece-chip',
-                      `owner-${piece.owner}`,
-                      piece.isPromoted ? 'is-promoted' : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                  >
-                    <span className="piece-owner">{piece.owner === 'black' ? 'Black' : 'White'}</span>
-                    <span className="piece-label">
-                      {getPieceLabel(PIECE_LABELS[piece.type], piece.isPromoted)}
-                    </span>
-                  </span>
+                  <Piece
+                    isPromoted={piece.isPromoted}
+                    owner={piece.owner}
+                    type={piece.type}
+                  />
                 ) : isTarget ? (
                   <span className="target-dot" aria-hidden="true" />
                 ) : null}

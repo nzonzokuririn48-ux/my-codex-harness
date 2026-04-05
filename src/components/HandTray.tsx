@@ -1,9 +1,5 @@
-import {
-  PIECE_LABELS,
-  type Hand,
-  type HandPieceType,
-  type Player,
-} from '../engine/shogi';
+import { type Hand, type HandPieceType, type Player } from '../engine/shogi';
+import { Piece } from './Piece';
 
 type HandTrayProps = {
   owner: Player;
@@ -66,7 +62,13 @@ export function HandTray({
               onClick={() => onSelectPiece(pieceType)}
               type="button"
             >
-              <span className="hand-piece-label">{PIECE_LABELS[pieceType]}</span>
+              <span className="hand-piece-visual">
+                <Piece
+                  isPromoted={false}
+                  owner={owner}
+                  type={pieceType}
+                />
+              </span>
               <span className="hand-piece-count">x{count}</span>
             </button>
           );
