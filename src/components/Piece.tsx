@@ -114,40 +114,40 @@ export function Piece({ type, isPromoted, owner }: PieceProps) {
           className="svg-piece-shell"
           fill={`url(#${woodGradientId})`}
           filter={`url(#${shadowId})`}
-          d="M10 6 L90 6 L82 82 L50 96 L18 82 Z"
+          d="M50 6 L82 20 L90 86 L10 86 L18 20 Z"
         />
         <path
           className="svg-piece-grain"
           fill={`url(#${grainGradientId})`}
-          d="M17 12 L83 12 L76 77 L50 88 L24 77 Z"
+          d="M50 12 L76 24 L83 77 L17 77 L24 24 Z"
         />
         <path
           className="svg-piece-highlight"
           fill={`url(#${highlightGradientId})`}
-          d="M18 12 L82 12 L78 46 L22 46 Z"
+          d="M50 12 L77 24 L72 45 L28 45 L23 24 Z"
         />
         <path
           className="svg-piece-player-tint"
           fill={`url(#${tintGradientId})`}
-          d="M17 12 L83 12 L76 77 L50 88 L24 77 Z"
+          d="M50 12 L76 24 L83 77 L17 77 L24 24 Z"
         />
         <path
           className="svg-piece-bottom-shadow"
           fill={`url(#${bottomShadeId})`}
-          d="M23 56 L77 56 L73 79 L50 89 L27 79 Z"
+          d="M18 56 L82 56 L86 82 L14 82 Z"
         />
         {isPromoted ? (
           <path
             className="svg-piece-promo-band"
-            d="M30 18 L70 18 L66 29 L34 29 Z"
+            d="M34 22 L66 22 L63 31 L37 31 Z"
             fill={`url(#${accentGradientId})`}
           />
         ) : null}
         <path
           className="svg-piece-border"
-          d="M14 10 L86 10 L79 79 L50 92 L21 79 Z"
+          d="M50 10 L79 22 L86 80 L14 80 L21 22 Z"
         />
-        <foreignObject className="svg-piece-glyph-box" x="21" y="26" width="58" height="54">
+        <foreignObject className="svg-piece-glyph-box" x="22" y="28" width="56" height="48">
           <div className="svg-piece-glyph">
             {label}
           </div>
