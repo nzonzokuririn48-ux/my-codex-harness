@@ -20,6 +20,7 @@ import {
   type Piece,
   type Player,
   type Position,
+  type SetupMode,
 } from './engine/shogi';
 import {
   clearPersistedGameState,
@@ -42,6 +43,7 @@ type StartFlowState = {
 type GameMode = 'local' | 'cpu';
 
 const GAME_MODE_STORAGE_KEY = 'shogi-app-mode';
+const SETUP_MODE_STORAGE_KEY = 'shogi-app-setup-mode';
 
 function getPieceStatusText(piece: Piece | null | undefined): string {
   if (!piece) {
@@ -96,10 +98,32 @@ function persistGameMode(mode: GameMode): void {
   }
 }
 
+function loadPersistedSetupMode(): SetupMode {
+  if (typeof window === 'undefined') {
+    return 'standard';
+  }
+
+  const savedMode = window.localStorage.getItem(SETUP_MODE_STORAGE_KEY);
+  return savedMode === 'random' ? 'random' : 'standard';
+}
+
+function persistSetupMode(mode: SetupMode): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(SETUP_MODE_STORAGE_KEY, mode);
+  } catch {
+    // Ignore persistence failures and keep the live app usable.
+  }
+}
+
 function App() {
   const [startFlowState, setStartFlowState] = useState(() => createStartFlowState());
   const [gameMode, setGameMode] = useState<GameMode>(() => loadPersistedGameMode());
-  const [gameState, setGameState] = useState(() => createInitialGameState());
+  const [setupMode, setSetupMode] = useState<SetupMode>(() => loadPersistedSetupMode());
+  const [gameState, setGameState] = useState(() => createInitialGameState(setupMode));
   const [previousStates, setPreviousStates] = useState<GameState[]>([]);
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null);
   const [selectedHandPiece, setSelectedHandPiece] = useState<HandPieceType | null>(null);
@@ -147,6 +171,10 @@ function App() {
     persistGameMode(gameMode);
   }, [gameMode]);
 
+  useEffect(() => {
+    persistSetupMode(setupMode);
+  }, [setupMode]);
+
   const resetInteractionState = () => {
     setSelectedPosition(null);
     setSelectedHandPiece(null);
@@ -166,7 +194,7 @@ function App() {
   };
 
   const resetGame = () => {
-    setGameState(createInitialGameState());
+    setGameState(createInitialGameState(setupMode));
     setPreviousStates([]);
     resetInteractionState();
   };
@@ -191,7 +219,7 @@ function App() {
 
   const handleStartNewGame = () => {
     clearPersistedGameState();
-    setGameState(createInitialGameState());
+    setGameState(createInitialGameState(setupMode));
     setPreviousStates([]);
     resetInteractionState();
     setStartFlowState({
@@ -206,7 +234,18 @@ function App() {
     }
 
     setGameMode(nextMode);
-    setGameState(createInitialGameState());
+    setGameState(createInitialGameState(setupMode));
+    setPreviousStates([]);
+    resetInteractionState();
+  };
+
+  const handleSetupModeChange = (nextMode: SetupMode) => {
+    if (setupMode === nextMode) {
+      return;
+    }
+
+    setSetupMode(nextMode);
+    setGameState(createInitialGameState(nextMode));
     setPreviousStates([]);
     resetInteractionState();
   };
@@ -382,6 +421,8 @@ function App() {
       <StartPrompt
         onContinue={handleContinueSavedGame}
         onStartNew={handleStartNewGame}
+        onSetupModeChange={handleSetupModeChange}
+        setupMode={setupMode}
       />
     );
   }
@@ -409,6 +450,22 @@ function App() {
                 type="button"
               >
                 Vs CPU
+              </button>
+            </div>
+            <div className="mode-toggle" role="group" aria-label="Setup mode">
+              <button
+                className={`mode-button${setupMode === 'standard' ? ' is-active' : ''}`}
+                onClick={() => handleSetupModeChange('standard')}
+                type="button"
+              >
+                Standard
+              </button>
+              <button
+                className={`mode-button${setupMode === 'random' ? ' is-active' : ''}`}
+                onClick={() => handleSetupModeChange('random')}
+                type="button"
+              >
+                Random
               </button>
             </div>
             <button
@@ -451,6 +508,10 @@ function App() {
           <div>
             <span className="status-label">Mode</span>
             <strong>{gameMode === 'cpu' ? 'vs CPU' : 'local'}</strong>
+          </div>
+          <div>
+            <span className="status-label">Setup</span>
+            <strong>{setupMode}</strong>
           </div>
         </div>
 
@@ -545,7 +606,8 @@ function App() {
         <p className="help-text">
           Select one of the active player&apos;s pieces, then choose a highlighted square.
           The app supports standard movement, captures, promotion choice, hand drops,
-          move history, local two-player play, and a simple random CPU mode.
+          move history, local two-player play, and a simple CPU. Random mode shuffles
+          the back rank symmetrically while keeping pawns, rook, and bishop fixed.
         </p>
       </section>
     </main>

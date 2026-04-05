@@ -53,6 +53,19 @@ button {
   gap: 12px;
 }
 
+.start-prompt-setup {
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(92, 72, 31, 0.14);
+}
+
+.start-prompt-setup-text {
+  margin-top: 6px;
+}
+
 .app-header,
 .status-bar {
   display: flex;
@@ -446,6 +459,10 @@ button {
 
   .game-banner {
     align-items: stretch;
+  }
+
+  .start-prompt-setup {
+    padding: 12px 14px;
   }
 
   .board-frame {
