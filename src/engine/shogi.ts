@@ -19,6 +19,7 @@ export type Piece = {
 
 export type Square = Piece | null;
 export type Board = Square[][];
+export type SetupMode = 'standard' | 'random';
 export type HandPieceType = Exclude<PieceType, 'king'>;
 export type Hand = Record<HandPieceType, number>;
 export type Hands = Record<Player, Hand>;
@@ -79,18 +80,6 @@ const HAND_PIECE_TYPES: HandPieceType[] = [
   'knight',
   'lance',
   'pawn',
-];
-
-const HOME_ROW: PieceType[] = [
-  'lance',
-  'knight',
-  'silver',
-  'gold',
-  'king',
-  'gold',
-  'silver',
-  'knight',
-  'lance',
 ];
 
 type Direction = {
@@ -178,11 +167,46 @@ function createEmptyBoard(): Board {
   );
 }
 
-export function createInitialBoard(): Board {
+export function createStandardBackRank(): PieceType[] {
+  return [
+    'lance',
+    'knight',
+    'silver',
+    'gold',
+    'king',
+    'gold',
+    'silver',
+    'knight',
+    'lance',
+  ];
+}
+
+export function createRandomBackRank(): PieceType[] {
+  const backRank: PieceType[] = [
+    'king',
+    'gold',
+    'gold',
+    'silver',
+    'silver',
+    'knight',
+    'knight',
+    'lance',
+    'lance',
+  ];
+
+  for (let index = backRank.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [backRank[index], backRank[swapIndex]] = [backRank[swapIndex], backRank[index]];
+  }
+
+  return backRank;
+}
+
+export function createBoardFromBackRank(backRank: PieceType[]): Board {
   const board = createEmptyBoard();
 
-  HOME_ROW.forEach((pieceType, col) => {
-    board[0][col] = createPiece('white', pieceType);
+  backRank.forEach((pieceType, col) => {
+    board[0][BOARD_SIZE - 1 - col] = createPiece('white', pieceType);
     board[8][col] = createPiece('black', pieceType);
     board[2][col] = createPiece('white', 'pawn');
     board[6][col] = createPiece('black', 'pawn');
@@ -196,9 +220,15 @@ export function createInitialBoard(): Board {
   return board;
 }
 
-export function createInitialGameState(): GameState {
+export function createInitialBoard(setupMode: SetupMode = 'standard'): Board {
+  const backRank =
+    setupMode === 'random' ? createRandomBackRank() : createStandardBackRank();
+  return createBoardFromBackRank(backRank);
+}
+
+export function createInitialGameState(setupMode: SetupMode = 'standard'): GameState {
   return {
-    board: createInitialBoard(),
+    board: createInitialBoard(setupMode),
     currentPlayer: 'black',
     hands: createEmptyHands(),
     history: [],

@@ -49,6 +49,25 @@ function sortMoves(moves: Array<{ row: number; col: number }>): string[] {
     .sort();
 }
 
+function countPieceTypes(pieces: Piece[]): Record<Piece['type'], number> {
+  return pieces.reduce<Record<Piece['type'], number>>(
+    (counts, piece) => {
+      counts[piece.type] += 1;
+      return counts;
+    },
+    {
+      king: 0,
+      rook: 0,
+      bishop: 0,
+      gold: 0,
+      silver: 0,
+      knight: 0,
+      lance: 0,
+      pawn: 0,
+    },
+  );
+}
+
 function createHands(
   owner: Piece['owner'],
   pieceType: HandPieceType,
@@ -60,8 +79,8 @@ function createHands(
 }
 
 describe('shogi engine', () => {
-  it('creates the standard starting layout', () => {
-    const state = createInitialGameState();
+  it('creates the standard starting layout in standard mode', () => {
+    const state = createInitialGameState('standard');
 
     expect(state.currentPlayer).toBe('black');
     expect(state.board).toHaveLength(BOARD_SIZE);
@@ -75,6 +94,41 @@ describe('shogi engine', () => {
     expect(state.board[2].every((square) => square?.isPromoted === false)).toBe(true);
     expect(state.hands).toEqual(createEmptyHands());
     expect(state.history).toEqual([]);
+  });
+
+  it('creates a valid random-symmetry starting layout in random mode', () => {
+    const state = createInitialGameState('random');
+    const blackBackRank = state.board[8].filter((square): square is Piece => square !== null);
+
+    expect(state.board[6].every((square) => square?.type === 'pawn')).toBe(true);
+    expect(state.board[6].every((square) => square?.owner === 'black')).toBe(true);
+    expect(state.board[2].every((square) => square?.type === 'pawn')).toBe(true);
+    expect(state.board[2].every((square) => square?.owner === 'white')).toBe(true);
+
+    expect(state.board[1][1]).toEqual(createPiece('white', 'rook'));
+    expect(state.board[1][7]).toEqual(createPiece('white', 'bishop'));
+    expect(state.board[7][1]).toEqual(createPiece('black', 'bishop'));
+    expect(state.board[7][7]).toEqual(createPiece('black', 'rook'));
+
+    expect(blackBackRank).toHaveLength(BOARD_SIZE);
+    expect(countPieceTypes(blackBackRank)).toEqual({
+      king: 1,
+      rook: 0,
+      bishop: 0,
+      gold: 2,
+      silver: 2,
+      knight: 2,
+      lance: 2,
+      pawn: 0,
+    });
+
+    for (let col = 0; col < BOARD_SIZE; col += 1) {
+      expect(state.board[8][col]?.owner).toBe('black');
+      expect(state.board[0][BOARD_SIZE - 1 - col]?.owner).toBe('white');
+      expect(state.board[0][BOARD_SIZE - 1 - col]?.type).toBe(state.board[8][col]?.type);
+      expect(state.board[8][col]?.isPromoted).toBe(false);
+      expect(state.board[0][BOARD_SIZE - 1 - col]?.isPromoted).toBe(false);
+    }
   });
 
   it('allows a black pawn to move one square forward', () => {
