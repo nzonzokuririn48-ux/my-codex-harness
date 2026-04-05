@@ -1,12 +1,27 @@
 import { type Hand, type HandPieceType, type Player } from '../engine/shogi';
 import { Piece } from './Piece';
 
+type DragPointerPayload = {
+  pointerId: number;
+  clientX: number;
+  clientY: number;
+  button: number;
+  isPrimary: boolean;
+};
+
 type HandTrayProps = {
   owner: Player;
   hand: Hand;
   isActive: boolean;
   isDisabled: boolean;
+  draggablePieceTypes: HandPieceType[];
+  draggedPieceType: HandPieceType | null;
   selectedPiece: HandPieceType | null;
+  onPiecePointerDown: (
+    pieceType: HandPieceType,
+    owner: Player,
+    pointer: DragPointerPayload,
+  ) => void;
   onSelectPiece: (pieceType: HandPieceType) => void;
 };
 
@@ -25,7 +40,10 @@ export function HandTray({
   hand,
   isActive,
   isDisabled,
+  draggablePieceTypes,
+  draggedPieceType,
   selectedPiece,
+  onPiecePointerDown,
   onSelectPiece,
 }: HandTrayProps) {
   return (
@@ -53,6 +71,8 @@ export function HandTray({
         {HAND_PIECE_ORDER.map((pieceType) => {
           const count = hand[pieceType];
           const isSelected = selectedPiece === pieceType;
+          const isDraggable = draggablePieceTypes.includes(pieceType);
+          const isDragOrigin = draggedPieceType === pieceType;
 
           return (
             <button
@@ -61,11 +81,26 @@ export function HandTray({
                 'hand-piece-button',
                 isSelected ? 'is-selected' : '',
                 count > 0 && isActive && !isDisabled ? 'is-available' : '',
+                isDraggable ? 'is-draggable' : '',
+                isDragOrigin ? 'is-drag-origin' : '',
               ]
                 .filter(Boolean)
                 .join(' ')}
               disabled={isDisabled || !isActive || count === 0}
               onClick={() => onSelectPiece(pieceType)}
+              onPointerDown={(event) => {
+                if (!isDraggable) {
+                  return;
+                }
+
+                onPiecePointerDown(pieceType, owner, {
+                  pointerId: event.pointerId,
+                  clientX: event.clientX,
+                  clientY: event.clientY,
+                  button: event.button,
+                  isPrimary: event.isPrimary,
+                });
+              }}
               type="button"
             >
               <span className="hand-piece-visual">
