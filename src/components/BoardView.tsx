@@ -48,8 +48,16 @@ export function BoardView({
                 type="button"
               >
                 {piece ? (
-                  <span className={`piece-chip owner-${piece.owner}`}>
-                    <span className="piece-owner">{piece.owner === 'black' ? 'B' : 'W'}</span>
+                  <span
+                    className={[
+                      'piece-chip',
+                      `owner-${piece.owner}`,
+                      piece.isPromoted ? 'is-promoted' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                  >
+                    <span className="piece-owner">{piece.owner === 'black' ? 'Black' : 'White'}</span>
                     <span className="piece-label">
                       {getPieceLabel(PIECE_LABELS[piece.type], piece.isPromoted)}
                     </span>

@@ -36,6 +36,7 @@ export function HandTray({
     <section
       className={[
         'hand-tray',
+        `owner-${owner}`,
         isActive ? 'is-active' : '',
         isDisabled ? 'is-disabled' : '',
       ]
@@ -44,7 +45,7 @@ export function HandTray({
     >
       <div className="hand-tray-header">
         <span className="status-label">Hand</span>
-        <strong>{owner}</strong>
+        <strong>{owner === 'black' ? 'Black' : 'White'}</strong>
       </div>
 
       <div className="hand-piece-list">

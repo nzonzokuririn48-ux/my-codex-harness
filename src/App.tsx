@@ -68,6 +68,14 @@ function getPlayerLabel(player: Player): string {
   return player === 'black' ? 'Black' : 'White';
 }
 
+function getGameModeLabel(mode: GameMode): string {
+  return mode === 'cpu' ? 'Vs CPU' : 'Local';
+}
+
+function getSetupModeLabel(mode: SetupMode): string {
+  return mode === 'random' ? 'Random' : 'Standard';
+}
+
 function createStartFlowState(): StartFlowState {
   const savedGame = loadPersistedGameState();
 
@@ -489,7 +497,7 @@ function App() {
         <div className="status-bar">
           <div>
             <span className="status-label">Turn</span>
-            <strong>{winner ? 'Game over' : gameState.currentPlayer}</strong>
+            <strong>{winner ? 'Game Over' : getPlayerLabel(gameState.currentPlayer)}</strong>
           </div>
           <div>
             <span className="status-label">Selected</span>
@@ -507,11 +515,11 @@ function App() {
           </div>
           <div>
             <span className="status-label">Mode</span>
-            <strong>{gameMode === 'cpu' ? 'vs CPU' : 'local'}</strong>
+            <strong>{getGameModeLabel(gameMode)}</strong>
           </div>
           <div>
             <span className="status-label">Setup</span>
-            <strong>{setupMode}</strong>
+            <strong>{getSetupModeLabel(setupMode)}</strong>
           </div>
         </div>
 
@@ -565,19 +573,7 @@ function App() {
         <MoveHistory history={gameState.history} onExport={handleExportMoves} />
 
         {showPromotionChoice ? (
-          <div
-            aria-label="Promotion choice"
-            style={{
-              marginTop: '16px',
-              padding: '14px 16px',
-              borderRadius: '14px',
-              background: 'rgba(255, 255, 255, 0.65)',
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '12px',
-              alignItems: 'center',
-            }}
-          >
+          <div className="promotion-choice" aria-label="Promotion choice">
             <strong>Promote this piece?</strong>
             <button
               className="reset-button"
@@ -587,15 +583,8 @@ function App() {
               Promote
             </button>
             <button
+              className="secondary-button"
               onClick={() => handlePromotionChoice(false)}
-              style={{
-                border: '1px solid rgba(31, 41, 51, 0.18)',
-                borderRadius: '999px',
-                background: '#ffffff',
-                color: '#1f2933',
-                padding: '10px 16px',
-                cursor: 'pointer',
-              }}
               type="button"
             >
               Do not promote
