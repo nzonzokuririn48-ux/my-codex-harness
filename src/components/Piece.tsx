@@ -48,7 +48,7 @@ export function Piece({ type, isPromoted, owner }: PieceProps) {
         aria-hidden="true"
         className="svg-piece-graphic"
         focusable="false"
-        viewBox="0 0 100 120"
+        viewBox="0 0 100 140"
       >
         <defs>
           <linearGradient id={woodGradientId} x1="0%" x2="0%" y1="4%" y2="100%">
@@ -109,33 +109,33 @@ export function Piece({ type, isPromoted, owner }: PieceProps) {
           className="svg-piece-shell"
           fill={`url(#${woodGradientId})`}
           filter={`url(#${shadowId})`}
-          d="M50 6 L82 20 L90 86 L10 86 L18 20 Z"
+          d="M50 6 L82 20 L90 106 L10 106 L18 20 Z"
         />
         <path
           className="svg-piece-grain"
           fill={`url(#${grainGradientId})`}
-          d="M50 12 L76 24 L83 77 L17 77 L24 24 Z"
+          d="M50 12 L76 24 L83 97 L17 97 L24 24 Z"
         />
         <path
           className="svg-piece-highlight"
           fill={`url(#${highlightGradientId})`}
-          d="M50 12 L77 24 L72 45 L28 45 L23 24 Z"
+          d="M50 12 L77 24 L72 55 L28 55 L23 24 Z"
         />
         <path
           className="svg-piece-player-tint"
           fill={`url(#${tintGradientId})`}
-          d="M50 12 L76 24 L83 77 L17 77 L24 24 Z"
+          d="M50 12 L76 24 L83 97 L17 97 L24 24 Z"
         />
         <path
           className="svg-piece-bottom-shadow"
           fill={`url(#${bottomShadeId})`}
-          d="M18 56 L82 56 L86 82 L14 82 Z"
+          d="M18 66 L82 66 L86 102 L14 102 Z"
         />
         <path
           className="svg-piece-border"
-          d="M50 10 L79 22 L86 80 L14 80 L21 22 Z"
+          d="M50 10 L79 22 L86 100 L14 100 L21 22 Z"
         />
-        <foreignObject className="svg-piece-glyph-box" x="22" y="28" width="56" height="48">
+        <foreignObject className="svg-piece-glyph-box" x="22" y="32" width="56" height="48">
           <div className="svg-piece-glyph">
             {label}
           </div>

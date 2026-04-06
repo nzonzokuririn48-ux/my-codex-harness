@@ -455,7 +455,7 @@ button:focus-visible {
   display: grid;
   place-items: center;
   cursor: pointer;
-  min-height: 60px;
+  min-height: 70px;
   width: 100%;
   min-width: 0;
   box-shadow:
@@ -483,8 +483,8 @@ button:focus-visible {
 }
 
 .hand-piece-visual {
-  width: 22px;
-  height: 28px;
+  width: 24px;
+  height: 32px;
   display: inline-grid;
   place-items: center;
   flex: 0 0 auto;
@@ -492,14 +492,11 @@ button:focus-visible {
 }
 
 .hand-piece-button.is-selected {
-  background: linear-gradient(180deg, #9b6f3e 0%, #74481f 100%);
-  color: #fffaf0;
-  border-color: rgba(101, 60, 18, 0.96);
+  transform: translateY(-3px);
   box-shadow:
-    0 12px 18px rgba(93, 60, 24, 0.18),
-    inset 0 1px 0 rgba(255, 241, 208, 0.24),
-    0 0 0 3px rgba(124, 83, 37, 0.22),
-    0 0 18px rgba(197, 133, 51, 0.16);
+    0 8px 16px rgba(93, 60, 24, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -8px 12px rgba(125, 81, 35, 0.1);
 }
 
 .hand-piece-button.is-selected .hand-piece-visual {
