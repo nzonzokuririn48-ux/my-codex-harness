@@ -72,7 +72,7 @@ export function HandTray({
           const isDraggable = draggablePieceTypes.includes(pieceType);
           const isDragOrigin = draggedPieceType === pieceType;
 
-          return (
+          return count > 0 ? (
             <button
               key={pieceType}
               className={[
@@ -110,7 +110,7 @@ export function HandTray({
               </span>
               <span className="hand-piece-count">x{count}</span>
             </button>
-          );
+          ) : null;
         })}
       </div>
     </section>

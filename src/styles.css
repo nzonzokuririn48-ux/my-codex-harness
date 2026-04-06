@@ -263,8 +263,46 @@ button:focus-visible {
 
 .gameplay-layout {
   display: grid;
+  grid-template-columns: auto 1fr auto;
   gap: 16px;
   align-items: start;
+  justify-items: center;
+}
+
+.left-panel {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 16px;
+  width: 200px;
+  min-width: 180px;
+}
+
+.opponent-hand-area {
+  /* Opponent hand at upper-left */
+}
+
+.center-board {
+  display: grid;
+  justify-items: center;
+  width: min(100%, 600px);
+  padding: 20px;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 250, 244, 0.72), rgba(239, 229, 210, 0.58));
+  border: 1px solid rgba(118, 86, 46, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 14px 30px rgba(84, 61, 24, 0.06);
+}
+
+.right-panel {
+  display: grid;
+  width: 200px;
+  min-width: 180px;
+}
+
+.player-hand-area {
+  /* Player hand at mid/lower-right */
 }
 
 .play-surface {
@@ -391,7 +429,7 @@ button:focus-visible {
 
 .hand-piece-list {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 6px;
 }
 
@@ -857,6 +895,12 @@ button:focus-visible {
   flex-wrap: wrap;
 }
 
+.move-history-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .move-history-summary {
   display: grid;
   gap: 2px;
@@ -1005,40 +1049,37 @@ button:focus-visible {
   margin: 18px 0 0;
 }
 
-@media (max-width: 720px) {
-  .app-shell {
-    padding: 12px;
-  }
-
-  .app-panel {
-    padding: 16px;
-    border-radius: 18px;
-  }
-
-  .game-banner {
-    align-items: stretch;
-  }
-
-  .start-prompt-setup {
-    padding: 12px 14px;
-  }
-
-  .board-play-area {
-    padding: 8px 8px 10px;
-    border-radius: 22px;
-  }
-
-  .game-sidebar-panel {
-    padding: 10px 12px;
-  }
-
-  .sidebar-actions {
+@media (max-width: 900px) {
+  .gameplay-layout {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
-  .board-frame {
-    padding: 10px;
+  .left-panel,
+  .right-panel {
+    width: 100%;
+    max-width: 400px;
+    justify-self: center;
   }
+
+  .left-panel {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    gap: 12px;
+  }
+
+  .opponent-hand-area {
+    grid-column: 1;
+  }
+
+  .move-history {
+    grid-column: 2;
+  }
+
+  .right-panel {
+    justify-self: center;
+  }
+}
 
   .svg-piece-graphic {
     width: min(92%, 56px);
@@ -1048,23 +1089,23 @@ button:focus-visible {
 
 @media (min-width: 980px) {
   .gameplay-layout {
-    grid-template-columns: minmax(0, 700px) 236px;
+    grid-template-columns: 220px 1fr 220px;
     align-items: start;
     justify-content: center;
   }
 
-  .play-surface {
-    width: 700px;
+  .left-panel,
+  .right-panel {
+    width: 220px;
   }
 
-  .game-sidebar {
-    width: 236px;
+  .center-board {
+    width: 600px;
   }
 
   .move-history {
-    margin-top: 0;
-    width: 236px;
-    max-width: 236px;
+    width: 100%;
+    max-width: 100%;
   }
 
   .move-history-list {
@@ -1126,8 +1167,13 @@ button:focus-visible {
     transform: translateX(-50%);
   }
 
-  .move-history-export {
+  .move-history-actions {
     width: 100%;
+    justify-content: stretch;
+  }
+
+  .move-history-actions > * {
+    flex: 1;
   }
 
   .hand-tray {

@@ -4,9 +4,12 @@ import { formatMoveHistoryEntry } from '../lib/moveHistory';
 type MoveHistoryProps = {
   history: MoveHistoryEntry[];
   onExport: () => void;
+  onUndo?: () => void;
+  canUndo?: boolean;
+  onReset?: () => void;
 };
 
-export function MoveHistory({ history, onExport }: MoveHistoryProps) {
+export function MoveHistory({ history, onExport, onUndo, canUndo, onReset }: MoveHistoryProps) {
   return (
     <section className="move-history" aria-label="Move history">
       <div className="move-history-header">
@@ -14,14 +17,35 @@ export function MoveHistory({ history, onExport }: MoveHistoryProps) {
           <strong className="move-history-title">{'\u68cb\u8b5c'}</strong>
           <span className="move-history-count">{`${history.length}\u624b`}</span>
         </div>
-        <button
-          className="secondary-button move-history-export"
-          disabled={history.length === 0}
-          onClick={onExport}
-          type="button"
-        >
-          Export
-        </button>
+        <div className="move-history-actions">
+          {onUndo && (
+            <button
+              className="secondary-button"
+              disabled={!canUndo}
+              onClick={onUndo}
+              type="button"
+            >
+              Undo
+            </button>
+          )}
+          {onReset && (
+            <button
+              className="reset-button"
+              onClick={onReset}
+              type="button"
+            >
+              Reset
+            </button>
+          )}
+          <button
+            className="secondary-button move-history-export"
+            disabled={history.length === 0}
+            onClick={onExport}
+            type="button"
+          >
+            Export
+          </button>
+        </div>
       </div>
 
       {history.length === 0 ? (
