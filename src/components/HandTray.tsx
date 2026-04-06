@@ -58,12 +58,11 @@ export function HandTray({
         .filter(Boolean)
         .join(' ')}
     >
-      <div className="hand-tray-header">
-        <strong className="hand-tray-owner">{owner === 'black' ? 'Black hand' : 'White hand'}</strong>
-        {isActive && !isDisabled ? (
+      {isActive && !isDisabled ? (
+        <div className="hand-tray-header">
           <span className="hand-tray-state is-active">Turn</span>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
 
       <div className="hand-piece-list">
         {HAND_PIECE_ORDER.flatMap((pieceType) =>

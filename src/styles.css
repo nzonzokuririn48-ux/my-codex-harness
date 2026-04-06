@@ -270,7 +270,7 @@ button:focus-visible {
   display: grid;
   grid-template-columns: 240px minmax(0, 600px) 240px;
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
   justify-content: center;
   padding-top: 60px;
 }
@@ -279,12 +279,16 @@ button:focus-visible {
 .right-panel {
   display: grid;
   width: 240px;
-  align-items: start;
 }
 
 .left-panel {
   grid-template-rows: auto auto;
   gap: 16px;
+  align-items: start;
+}
+
+.right-panel {
+  align-items: end;
 }
 
 .opponent-hand-area,
@@ -293,8 +297,7 @@ button:focus-visible {
 }
 
 .player-hand-area {
-  margin-top: 180px;
-  align-self: start;
+  margin-top: 0;
 }
 
 .move-history {
@@ -483,8 +486,8 @@ button:focus-visible {
 }
 
 .hand-piece-visual {
-  width: 100%;
-  height: 100%;
+  width: 72%;
+  height: 72%;
   display: grid;
   place-items: center;
   flex: 0 0 auto;
@@ -711,10 +714,10 @@ button:focus-visible {
 }
 
 .board-piece-wrapper .svg-piece {
-  width: 90%;
-  height: 90%;
-  min-width: 90%;
-  min-height: 90%;
+  width: 96%;
+  height: 96%;
+  min-width: 96%;
+  min-height: 96%;
 }
 
 .board-piece-motion.is-animating {
@@ -733,8 +736,8 @@ button:focus-visible {
 }
 
 .svg-piece-graphic {
-  width: 85%;
-  height: 85%;
+  width: 92%;
+  height: 92%;
   aspect-ratio: 100 / 140;
   overflow: visible;
   filter:
@@ -1130,13 +1133,14 @@ button:focus-visible {
 
   .right-panel {
     justify-self: center;
+    align-items: end;
   }
 }
 
 @media (min-width: 980px) {
   .gameplay-layout {
     grid-template-columns: 240px 600px 240px;
-    align-items: start;
+    align-items: stretch;
     justify-content: center;
   }
 

@@ -105,18 +105,19 @@ export function Piece({ type, isPromoted, owner }: PieceProps) {
             <feDropShadow dx="0" dy="5" floodColor="rgba(58,33,10,0.22)" stdDeviation="4" />
           </filter>
         </defs>
-        <path
-          className="svg-piece-shell"
-          fill={`url(#${woodGradientId})`}
-          filter={`url(#${shadowId})`}
-          d="M50 6 L82 20 L90 106 L10 106 L18 20 Z"
-        />
-        <path
-          className="svg-piece-grain"
-          fill={`url(#${grainGradientId})`}
-          d="M50 12 L76 24 L83 97 L17 97 L24 24 Z"
-        />
-        <path
+        <g transform="translate(0 14)">
+          <path
+            className="svg-piece-shell"
+            fill={`url(#${woodGradientId})`}
+            filter={`url(#${shadowId})`}
+            d="M50 6 L82 20 L90 106 L10 106 L18 20 Z"
+          />
+          <path
+            className="svg-piece-grain"
+            fill={`url(#${grainGradientId})`}
+            d="M50 12 L76 24 L83 97 L17 97 L24 24 Z"
+          />
+          <path
           className="svg-piece-highlight"
           fill={`url(#${highlightGradientId})`}
           d="M50 12 L77 24 L72 55 L28 55 L23 24 Z"
@@ -140,6 +141,7 @@ export function Piece({ type, isPromoted, owner }: PieceProps) {
             {label}
           </div>
         </foreignObject>
+      </g>
       </svg>
     </span>
   );
