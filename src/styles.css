@@ -45,6 +45,7 @@ button:focus-visible {
     0 28px 68px rgba(59, 46, 21, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.72);
   padding: 18px;
+  position: relative;
 }
 
 .start-prompt {
@@ -220,7 +221,11 @@ button:focus-visible {
 }
 
 .game-banner {
-  margin-bottom: 12px;
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  right: 18px;
+  z-index: 10;
   padding: 12px 16px;
   border-radius: 18px;
   display: flex;
@@ -267,6 +272,7 @@ button:focus-visible {
   gap: 16px;
   align-items: start;
   justify-content: center;
+  padding-top: 60px;
 }
 
 .left-panel,
@@ -458,6 +464,7 @@ button:focus-visible {
   min-height: 70px;
   width: 100%;
   min-width: 0;
+  outline: none;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
     inset 0 -6px 10px rgba(125, 81, 35, 0.08);
@@ -491,12 +498,11 @@ button:focus-visible {
   transition: transform 140ms ease, filter 140ms ease;
 }
 
-.hand-piece-button.is-selected {
-  transform: translateY(-3px);
+.hand-piece-button:focus-visible {
   box-shadow:
-    0 8px 16px rgba(93, 60, 24, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8),
-    inset 0 -8px 12px rgba(125, 81, 35, 0.1);
+    0 0 0 2px rgba(0, 123, 255, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -6px 10px rgba(125, 81, 35, 0.08);
 }
 
 .hand-piece-button.is-selected .hand-piece-visual {
