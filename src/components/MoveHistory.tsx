@@ -11,8 +11,8 @@ export function MoveHistory({ history, onExport }: MoveHistoryProps) {
     <section className="move-history" aria-label="Move history">
       <div className="move-history-header">
         <div className="move-history-summary">
-          <span className="status-label">Kifu</span>
-          <strong>{`${history.length}\u624b`}</strong>
+          <strong className="move-history-title">{'\u68cb\u8b5c'}</strong>
+          <span className="move-history-count">{`${history.length}\u624b`}</span>
         </div>
         <button
           className="secondary-button move-history-export"
@@ -20,7 +20,7 @@ export function MoveHistory({ history, onExport }: MoveHistoryProps) {
           onClick={onExport}
           type="button"
         >
-          Export moves
+          Export
         </button>
       </div>
 

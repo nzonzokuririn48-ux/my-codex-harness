@@ -62,26 +62,6 @@ export function BoardView({
         .filter(Boolean)
         .join(' ')}
     >
-      <div className="board-caption">
-        <strong>
-          {selectionMode === 'move'
-            ? 'Move targets'
-            : selectionMode === 'drop'
-              ? 'Drop targets'
-              : interactionDisabled
-                ? 'Board locked'
-                : 'Board ready'}
-        </strong>
-        <span>
-          {selectionMode === 'move'
-            ? 'Highlighted squares show legal destinations.'
-            : selectionMode === 'drop'
-              ? 'Highlighted squares show legal drop positions.'
-              : interactionDisabled
-                ? 'Wait for the current prompt or turn to finish.'
-                : 'Select a piece or a hand tile to begin.'}
-        </span>
-      </div>
       <div className="board-grid" role="grid" aria-label="Shogi board">
         <svg
           aria-hidden="true"

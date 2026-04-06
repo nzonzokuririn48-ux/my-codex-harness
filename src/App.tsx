@@ -86,25 +86,6 @@ const DRAG_START_DISTANCE = 8;
 const DRAG_CLICK_GUARD_MS = 250;
 const PIECE_MOTION_DURATION_MS = 200;
 
-function getPieceStatusText(piece: Piece | null | undefined): string {
-  if (!piece) {
-    return 'none';
-  }
-
-  return piece.isPromoted ? `+${piece.type}` : piece.type;
-}
-
-function getSelectionStatusText(
-  piece: Piece | null | undefined,
-  handPiece: HandPieceType | null,
-): string {
-  if (handPiece) {
-    return `${handPiece} (hand)`;
-  }
-
-  return getPieceStatusText(piece);
-}
-
 function getPlayerLabel(player: Player): string {
   return player === 'black' ? 'Black' : 'White';
 }
@@ -115,10 +96,6 @@ function getGameModeLabel(mode: GameMode): string {
 
 function getSetupModeLabel(mode: SetupMode): string {
   return mode === 'random' ? 'Random' : 'Standard';
-}
-
-function getOpponent(player: Player): Player {
-  return player === 'black' ? 'white' : 'black';
 }
 
 function positionsMatch(left: Position | null, right: Position): boolean {
@@ -793,9 +770,6 @@ function App() {
     window.URL.revokeObjectURL(blobUrl);
   };
 
-  const activePiece = selectedPosition
-    ? gameState.board[selectedPosition.row][selectedPosition.col]
-    : null;
   const pendingPromotionPiece = pendingMove
     ? gameState.board[pendingMove.from.row][pendingMove.from.col]
     : null;
@@ -835,31 +809,6 @@ function App() {
   return (
     <main className="app-shell">
       <section className={['app-panel', isInteractionLocked ? 'is-locked' : ''].filter(Boolean).join(' ')}>
-        <header className="app-header">
-          <div>
-            <p className="eyebrow">Play Screen</p>
-            <h1>Shogi App</h1>
-            <p className="play-meta">{`${getGameModeLabel(gameMode)} • ${getSetupModeLabel(setupMode)}`}</p>
-          </div>
-          <div className="header-actions">
-            <button
-              className="secondary-button"
-              disabled={!canUndo}
-              onClick={handleUndo}
-              type="button"
-            >
-              Undo
-            </button>
-            <button
-              className="reset-button"
-              onClick={resetGame}
-              type="button"
-            >
-              Reset game
-            </button>
-          </div>
-        </header>
-
         {winner ? (
           <div className="game-banner game-banner-success">
             <strong>
@@ -882,79 +831,104 @@ function App() {
         ) : null}
 
         <div className="gameplay-layout">
-          <div className="board-play-area">
-            <div className="hand-layout hand-layout-opponent">
-              {renderHandTray('white')}
-            </div>
+          <div className="play-surface">
+            <div className="board-play-area">
+              <div className="hand-layout hand-layout-opponent">
+                {renderHandTray('white')}
+              </div>
 
-            <BoardView
-              animatedMove={pieceMotion}
-              board={gameState.board}
-              draggablePositions={draggableBoardPositions}
-              draggedFrom={draggedBoardPosition}
-              interactionDisabled={isInteractionLocked}
-              legalMoves={legalTargets}
-              overlayContent={
-                showPromotionChoice && pendingMove && pendingPromotionPiece ? (
-                  <div
-                    className={[
-                      'promotion-choice',
-                      pendingMove.to.row <= 2 ? 'is-below-anchor' : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')}
-                    aria-label="Promotion choice"
-                    style={{
-                      '--promotion-col': String(pendingMove.to.col),
-                      '--promotion-row': String(pendingMove.to.row),
-                    } as CSSProperties}
-                  >
-                    <span className="promotion-choice-title">Choose the piece face</span>
-                    <div className="promotion-choice-options">
-                      <button
-                        className="promotion-piece-button is-promote"
-                        onClick={() => handlePromotionChoice(true)}
-                        type="button"
-                      >
-                        <span className="promotion-piece-visual">
-                          <PieceView
-                            isPromoted={true}
-                            owner={pendingPromotionPiece.owner}
-                            type={pendingPromotionPiece.type}
-                          />
-                        </span>
-                        <span className="promotion-piece-label">Promote</span>
-                      </button>
-                      <button
-                        className="promotion-piece-button"
-                        onClick={() => handlePromotionChoice(false)}
-                        type="button"
-                      >
-                        <span className="promotion-piece-visual">
-                          <PieceView
-                            isPromoted={false}
-                            owner={pendingPromotionPiece.owner}
-                            type={pendingPromotionPiece.type}
-                          />
-                        </span>
-                        <span className="promotion-piece-label">Keep</span>
-                      </button>
+              <BoardView
+                animatedMove={pieceMotion}
+                board={gameState.board}
+                draggablePositions={draggableBoardPositions}
+                draggedFrom={draggedBoardPosition}
+                interactionDisabled={isInteractionLocked}
+                legalMoves={legalTargets}
+                overlayContent={
+                  showPromotionChoice && pendingMove && pendingPromotionPiece ? (
+                    <div
+                      className={[
+                        'promotion-choice',
+                        pendingMove.to.row <= 2 ? 'is-below-anchor' : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                      aria-label="Promotion choice"
+                      style={{
+                        '--promotion-col': String(pendingMove.to.col),
+                        '--promotion-row': String(pendingMove.to.row),
+                      } as CSSProperties}
+                    >
+                      <span className="promotion-choice-title">Choose the piece face</span>
+                      <div className="promotion-choice-options">
+                        <button
+                          className="promotion-piece-button is-promote"
+                          onClick={() => handlePromotionChoice(true)}
+                          type="button"
+                        >
+                          <span className="promotion-piece-visual">
+                            <PieceView
+                              isPromoted={true}
+                              owner={pendingPromotionPiece.owner}
+                              type={pendingPromotionPiece.type}
+                            />
+                          </span>
+                          <span className="promotion-piece-label">Promote</span>
+                        </button>
+                        <button
+                          className="promotion-piece-button"
+                          onClick={() => handlePromotionChoice(false)}
+                          type="button"
+                        >
+                          <span className="promotion-piece-visual">
+                            <PieceView
+                              isPromoted={false}
+                              owner={pendingPromotionPiece.owner}
+                              type={pendingPromotionPiece.type}
+                            />
+                          </span>
+                          <span className="promotion-piece-label">Keep</span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ) : null
-              }
-              onPiecePointerDown={handleBoardPiecePointerDown}
-              onSquareClick={handleSquareClick}
-              selectedPosition={selectedPosition}
-              selectionMode={selectedHandPiece ? 'drop' : selectedPosition ? 'move' : 'idle'}
-            />
+                  ) : null
+                }
+                onPiecePointerDown={handleBoardPiecePointerDown}
+                onSquareClick={handleSquareClick}
+                selectedPosition={selectedPosition}
+                selectionMode={selectedHandPiece ? 'drop' : selectedPosition ? 'move' : 'idle'}
+              />
 
-            <div className="hand-layout hand-layout-current">
-              {renderHandTray('black')}
+              <div className="hand-layout hand-layout-current">
+                {renderHandTray('black')}
+              </div>
             </div>
           </div>
 
-          <MoveHistory history={gameState.history} onExport={handleExportMoves} />
+          <aside className="game-sidebar" aria-label="Game information">
+            <div className="game-sidebar-panel">
+              <p className="game-sidebar-meta">{`${getGameModeLabel(gameMode)} / ${getSetupModeLabel(setupMode)}`}</p>
+              <div className="sidebar-actions">
+                <button
+                  className="secondary-button"
+                  disabled={!canUndo}
+                  onClick={handleUndo}
+                  type="button"
+                >
+                  Undo
+                </button>
+                <button
+                  className="reset-button"
+                  onClick={resetGame}
+                  type="button"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+
+            <MoveHistory history={gameState.history} onExport={handleExportMoves} />
+          </aside>
         </div>
       </section>
 

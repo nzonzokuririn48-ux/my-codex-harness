@@ -59,12 +59,10 @@ export function HandTray({
         .join(' ')}
     >
       <div className="hand-tray-header">
-        <div className="hand-tray-summary">
-          <strong>{owner === 'black' ? 'Black' : 'White'}</strong>
-        </div>
-        <span className={`hand-tray-state ${isActive ? 'is-active' : ''}`}>
-          {isDisabled ? 'Locked' : isActive ? 'Active' : 'Waiting'}
-        </span>
+        <strong className="hand-tray-owner">{owner === 'black' ? 'Black hand' : 'White hand'}</strong>
+        {isActive && !isDisabled ? (
+          <span className="hand-tray-state is-active">Turn</span>
+        ) : null}
       </div>
 
       <div className="hand-piece-list">

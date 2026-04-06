@@ -30,20 +30,21 @@ button:focus-visible {
 .app-shell {
   min-height: 100vh;
   display: grid;
-  place-items: center;
-  padding: 24px;
+  justify-items: center;
+  align-content: start;
+  padding: 16px;
 }
 
 .app-panel {
-  width: min(100%, 900px);
+  width: min(100%, 1120px);
   background:
-    linear-gradient(180deg, rgba(255, 252, 246, 0.96), rgba(248, 242, 228, 0.9));
-  border: 1px solid rgba(110, 84, 43, 0.16);
-  border-radius: 28px;
+    linear-gradient(180deg, rgba(255, 252, 246, 0.95), rgba(245, 237, 223, 0.92));
+  border: 1px solid rgba(110, 84, 43, 0.14);
+  border-radius: 24px;
   box-shadow:
-    0 30px 80px rgba(59, 46, 21, 0.16),
+    0 28px 68px rgba(59, 46, 21, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.72);
-  padding: 24px;
+  padding: 18px;
 }
 
 .start-prompt {
@@ -219,7 +220,7 @@ button:focus-visible {
 }
 
 .game-banner {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   padding: 12px 16px;
   border-radius: 18px;
   display: flex;
@@ -260,83 +261,94 @@ button:focus-visible {
   min-height: 44px;
 }
 
-.hand-layout {
-  display: grid;
-  gap: 14px;
-  margin-bottom: 20px;
-}
-
-.board-play-area {
-  display: grid;
-  gap: 8px;
-  min-width: 0;
-}
-
-.hand-layout {
-  margin-bottom: 0;
-}
-
 .gameplay-layout {
   display: grid;
   gap: 16px;
-  margin-bottom: 16px;
+  align-items: start;
 }
 
-.interaction-strip {
-  margin-bottom: 16px;
-  padding: 12px 16px;
-  border-radius: 18px;
+.play-surface {
+  min-width: 0;
   display: grid;
-  gap: 4px;
-  border: 1px solid rgba(102, 76, 33, 0.12);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(247, 240, 227, 0.76));
+  justify-content: center;
+}
+
+.board-play-area {
+  width: min(100%, 700px);
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px 12px 12px;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 250, 244, 0.72), rgba(239, 229, 210, 0.58));
+  border: 1px solid rgba(118, 86, 46, 0.12);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 8px 18px rgba(84, 61, 24, 0.05);
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 14px 30px rgba(84, 61, 24, 0.06);
 }
 
-.interaction-strip strong {
-  font-size: 0.98rem;
+.hand-layout {
+  display: grid;
+  gap: 0;
+  margin: 0;
 }
 
-.interaction-strip span {
-  color: #665f53;
-  font-size: 0.92rem;
+.game-sidebar {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+  align-content: start;
 }
 
-.interaction-strip.is-attention {
-  border-color: rgba(196, 108, 53, 0.22);
-  background: linear-gradient(180deg, rgba(255, 248, 242, 0.84), rgba(250, 237, 226, 0.8));
+.game-sidebar-panel {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(246, 240, 229, 0.76));
+  border: 1px solid rgba(96, 72, 34, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.68),
+    0 8px 18px rgba(79, 57, 23, 0.05);
 }
 
-.interaction-strip.is-info {
-  border-color: rgba(78, 109, 156, 0.2);
-  background: linear-gradient(180deg, rgba(243, 247, 253, 0.84), rgba(233, 240, 250, 0.8));
+.game-sidebar-meta {
+  margin: 0;
+  color: #6d6250;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sidebar-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .hand-tray {
   background:
-    linear-gradient(135deg, rgba(255, 248, 231, 0.72), rgba(255, 248, 231, 0) 30%),
-    radial-gradient(circle at 20% 18%, rgba(255, 243, 211, 0.28), transparent 34%),
+    linear-gradient(180deg, rgba(248, 221, 176, 0.28), rgba(248, 221, 176, 0) 36%),
     repeating-linear-gradient(96deg, rgba(122, 80, 28, 0.08) 0 7px, rgba(196, 148, 84, 0.04) 7px 15px),
-    linear-gradient(180deg, #d8ae70 0%, #c6924d 52%, #b77a34 100%);
-  border: 1px solid rgba(105, 73, 28, 0.34);
-  border-radius: 18px;
-  padding: 8px 10px;
+    linear-gradient(180deg, #d1a05f 0%, #bc8542 54%, #ab7234 100%);
+  border: 1px solid rgba(105, 73, 28, 0.28);
+  border-radius: 16px;
+  padding: 6px 8px 8px;
+  width: 100%;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.36),
-    inset 0 0 0 1px rgba(255, 236, 201, 0.12),
-    inset 0 12px 22px rgba(255, 232, 188, 0.08),
-    inset 0 -12px 22px rgba(88, 52, 15, 0.18),
-    0 16px 28px rgba(84, 61, 24, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -10px 18px rgba(88, 52, 15, 0.18),
+    0 10px 20px rgba(84, 61, 24, 0.05);
 }
 
 .hand-tray.is-active {
   border-color: rgba(122, 83, 37, 0.54);
   box-shadow:
     inset 0 0 0 1px rgba(122, 83, 37, 0.18),
-    inset 0 -14px 24px rgba(88, 52, 15, 0.18),
-    0 14px 30px rgba(84, 61, 24, 0.12);
+    inset 0 -12px 20px rgba(88, 52, 15, 0.18),
+    0 12px 20px rgba(84, 61, 24, 0.08);
 }
 
 .hand-tray.is-disabled {
@@ -347,28 +359,28 @@ button:focus-visible {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   margin-bottom: 6px;
+  padding: 0 2px;
 }
 
-.hand-tray-summary {
-  display: grid;
-  gap: 0;
-}
-
-.hand-tray-summary strong {
-  font-size: 0.9rem;
+.hand-tray-owner {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(73, 44, 11, 0.72);
 }
 
 .hand-tray-state {
-  padding: 3px 8px;
+  padding: 2px 7px;
   border-radius: 999px;
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #5e3d18;
-  background: rgba(255, 248, 232, 0.3);
+  background: rgba(255, 248, 232, 0.24);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
@@ -378,25 +390,27 @@ button:focus-visible {
 }
 
 .hand-piece-list {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 6px;
 }
 
 .hand-piece-button {
   border: 1px solid rgba(99, 73, 32, 0.2);
-  border-radius: 999px;
+  border-radius: 14px;
   background:
     linear-gradient(180deg, rgba(255, 249, 238, 0.96), rgba(245, 231, 205, 0.98)),
     repeating-linear-gradient(95deg, rgba(138, 95, 39, 0.05) 0 7px, rgba(255, 255, 255, 0.08) 7px 14px);
   color: #1f2933;
-  padding: 4px 8px;
+  padding: 4px 6px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
   cursor: pointer;
-  min-height: 38px;
-  min-width: 66px;
+  min-height: 42px;
+  width: 100%;
+  min-width: 0;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.72),
     inset 0 -8px 12px rgba(140, 95, 34, 0.06);
@@ -412,8 +426,8 @@ button:focus-visible {
 }
 
 .hand-piece-visual {
-  width: 26px;
-  height: 32px;
+  width: 22px;
+  height: 28px;
   display: inline-grid;
   place-items: center;
   flex: 0 0 auto;
@@ -425,15 +439,15 @@ button:focus-visible {
   color: #fffaf0;
   border-color: rgba(101, 60, 18, 0.96);
   box-shadow:
-    0 14px 24px rgba(93, 60, 24, 0.24),
+    0 12px 18px rgba(93, 60, 24, 0.18),
     inset 0 1px 0 rgba(255, 241, 208, 0.24),
     0 0 0 3px rgba(124, 83, 37, 0.22),
     0 0 18px rgba(197, 133, 51, 0.16);
 }
 
 .hand-piece-button.is-selected .hand-piece-visual {
-  transform: translateY(-3px) scale(1.08);
-  filter: drop-shadow(0 10px 10px rgba(74, 42, 14, 0.18));
+  transform: translateY(-2px) scale(1.06);
+  filter: drop-shadow(0 8px 8px rgba(74, 42, 14, 0.16));
 }
 
 .hand-piece-button:disabled {
@@ -447,24 +461,25 @@ button:focus-visible {
 }
 
 .hand-piece-count {
-  font-size: 0.78rem;
+  font-size: 0.73rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
 
 .board-frame {
-  width: min(100%, 672px);
+  width: 100%;
   margin: 0 auto;
   background:
     radial-gradient(circle at 18% 14%, rgba(255, 242, 210, 0.24), transparent 28%),
     radial-gradient(circle at 82% 78%, rgba(146, 88, 24, 0.18), transparent 30%),
     repeating-linear-gradient(98deg, rgba(123, 79, 27, 0.1) 0 10px, rgba(204, 154, 84, 0.08) 10px 18px, rgba(144, 89, 32, 0.05) 18px 28px),
     linear-gradient(180deg, #d3a35e 0%, #bc823d 54%, #a96d2d 100%);
-  border-radius: 28px;
-  padding: 16px;
+  border-radius: 24px;
+  padding: 12px;
   border: 1px solid rgba(125, 80, 28, 0.42);
   box-shadow:
-    0 26px 42px rgba(97, 63, 22, 0.2),
+    0 24px 38px rgba(97, 63, 22, 0.18),
     inset 0 2px 0 rgba(255, 255, 255, 0.18),
     inset 0 -4px 14px rgba(120, 76, 25, 0.22),
     inset 0 10px 24px rgba(255, 234, 198, 0.06);
@@ -477,32 +492,11 @@ button:focus-visible {
     inset 0 -3px 12px rgba(120, 76, 25, 0.12);
 }
 
-.board-caption {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  color: #fff7ea;
-  background: linear-gradient(180deg, rgba(93, 59, 18, 0.48), rgba(70, 43, 12, 0.4));
-  box-shadow: inset 0 1px 0 rgba(255, 244, 216, 0.12);
-}
-
-.board-caption strong {
-  font-size: 0.96rem;
-}
-
-.board-caption span {
-  font-size: 0.86rem;
-  color: rgba(255, 245, 225, 0.84);
-}
-
 .board-grid {
   position: relative;
   width: 100%;
   aspect-ratio: 1;
+  flex: 0 0 auto;
   overflow: visible;
   border-radius: 12px;
   background:
@@ -843,14 +837,14 @@ button:focus-visible {
 }
 
 .move-history {
-  padding: 14px 16px;
-  border-radius: 20px;
+  padding: 14px 14px 12px;
+  border-radius: 18px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(249, 244, 234, 0.68));
+    linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(246, 240, 228, 0.76));
   border: 1px solid rgba(92, 72, 31, 0.14);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.62),
-    0 10px 24px rgba(84, 61, 24, 0.06);
+    0 10px 24px rgba(84, 61, 24, 0.05);
   min-width: 0;
 }
 
@@ -868,8 +862,21 @@ button:focus-visible {
   gap: 2px;
 }
 
+.move-history-title {
+  font-size: 0.96rem;
+}
+
+.move-history-count {
+  color: #7b6b52;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 .move-history-export {
   justify-content: center;
+  min-height: 40px;
+  padding-inline: 12px;
 }
 
 .move-history-empty {
@@ -883,7 +890,7 @@ button:focus-visible {
   padding: 0;
   display: grid;
   gap: 8px;
-  max-height: 280px;
+  max-height: min(62vh, 640px);
   overflow-y: auto;
 }
 
@@ -1008,26 +1015,25 @@ button:focus-visible {
     border-radius: 18px;
   }
 
-  .app-header,
-  .status-bar {
-    align-items: flex-start;
-  }
-
-  .status-bar {
-    gap: 12px;
-  }
-
   .game-banner {
     align-items: stretch;
   }
 
-  .board-caption {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
   .start-prompt-setup {
     padding: 12px 14px;
+  }
+
+  .board-play-area {
+    padding: 8px 8px 10px;
+    border-radius: 22px;
+  }
+
+  .game-sidebar-panel {
+    padding: 10px 12px;
+  }
+
+  .sidebar-actions {
+    grid-template-columns: 1fr;
   }
 
   .board-frame {
@@ -1040,21 +1046,29 @@ button:focus-visible {
   }
 }
 
-@media (min-width: 860px) {
+@media (min-width: 980px) {
   .gameplay-layout {
-    grid-template-columns: minmax(0, 1fr) 248px;
+    grid-template-columns: minmax(0, 700px) 236px;
     align-items: start;
+    justify-content: center;
+  }
+
+  .play-surface {
+    width: 700px;
+  }
+
+  .game-sidebar {
+    width: 236px;
   }
 
   .move-history {
     margin-top: 0;
-    width: 248px;
-    max-width: 248px;
-    align-self: stretch;
+    width: 236px;
+    max-width: 236px;
   }
 
   .move-history-list {
-    max-height: min(52vh, 480px);
+    max-height: min(64vh, 700px);
   }
 }
 
@@ -1091,6 +1105,10 @@ button:focus-visible {
     padding: 12px 14px;
   }
 
+  .game-sidebar-panel {
+    padding: 10px 12px;
+  }
+
   .move-history {
     padding: 12px 14px;
   }
@@ -1113,26 +1131,24 @@ button:focus-visible {
   }
 
   .hand-tray {
-    padding: 8px 10px;
+    padding: 7px 8px 8px;
   }
 
   .hand-piece-list {
-    gap: 6px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 5px;
   }
 
   .hand-piece-button {
-    flex: 1 1 calc(33.333% - 10px);
-    justify-content: center;
-    padding: 6px 8px;
+    padding: 5px 6px;
   }
 
   .hand-piece-visual {
-    width: 24px;
-    height: 30px;
+    width: 20px;
+    height: 26px;
   }
 
   .board-frame {
-    width: min(100%, calc(100vw - 28px));
     padding: 8px;
   }
 
