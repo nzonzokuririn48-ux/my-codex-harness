@@ -465,6 +465,27 @@ function App() {
     setDragSession(null);
   };
 
+  const cancelPromotionChoice = () => {
+    resetInteractionState();
+  };
+
+  useEffect(() => {
+    if (!showPromotionChoice) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        cancelPromotionChoice();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showPromotionChoice]);
+
   const shouldIgnoreSyntheticClick = () => Date.now() < ignoreClicksUntilRef.current;
 
   const applyCpuAction = (action: CpuAction) => {
@@ -892,6 +913,13 @@ function App() {
                         <span className="promotion-piece-label">Keep</span>
                       </button>
                     </div>
+                    <button
+                      className="promotion-choice-cancel"
+                      onClick={cancelPromotionChoice}
+                      type="button"
+                    >
+                      Cancel
+                    </button>
                   </div>
                 ) : null
               }

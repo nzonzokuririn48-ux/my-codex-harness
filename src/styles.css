@@ -465,6 +465,7 @@ button:focus-visible {
   width: 100%;
   min-width: 0;
   outline: none;
+  -webkit-tap-highlight-color: transparent;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
     inset 0 -6px 10px rgba(125, 81, 35, 0.08);
@@ -487,6 +488,22 @@ button:focus-visible {
 
 .hand-piece-button.is-available {
   border-color: rgba(124, 83, 37, 0.28);
+}
+
+.hand-piece-button.is-selected {
+  border-color: rgba(124, 83, 37, 0.32);
+  background: rgba(255, 249, 237, 0.96);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    inset 0 -6px 10px rgba(125, 81, 35, 0.08),
+    0 10px 24px rgba(74, 42, 14, 0.16);
+}
+
+.hand-piece-button.is-selected:focus-visible {
+  box-shadow:
+    0 0 0 2px rgba(44, 106, 177, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    inset 0 -6px 10px rgba(125, 81, 35, 0.08);
 }
 
 .hand-piece-visual {
@@ -618,6 +635,7 @@ button:focus-visible {
   padding: 3px;
   cursor: pointer;
   position: relative;
+  overflow: hidden;
   transition: box-shadow 120ms ease, transform 120ms ease, filter 120ms ease;
 }
 
@@ -707,6 +725,28 @@ button:focus-visible {
   display: grid;
   place-items: center;
   contain: layout paint;
+}
+
+.board-piece-wrapper {
+  width: 84%;
+  height: 84%;
+  max-width: 86%;
+  max-height: 86%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.board-piece-wrapper .svg-piece {
+  width: 100%;
+  height: 100%;
+}
+
+.board-piece-wrapper .svg-piece-graphic {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .board-piece-motion.is-animating {
@@ -1041,6 +1081,30 @@ button:focus-visible {
     inset 0 1px 0 rgba(255, 255, 255, 0.72),
     0 8px 18px rgba(88, 52, 15, 0.1);
   transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.promotion-choice-cancel {
+  border: 1px solid rgba(107, 69, 26, 0.16);
+  border-radius: 18px;
+  background: rgba(255, 248, 236, 0.88);
+  color: #5c3e22;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  align-self: start;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    0 8px 18px rgba(88, 52, 15, 0.08);
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.promotion-choice-cancel:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.76),
+    0 10px 18px rgba(88, 52, 15, 0.12);
 }
 
 .promotion-piece-button:hover {

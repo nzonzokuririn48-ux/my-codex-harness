@@ -166,11 +166,13 @@ export function BoardView({
                           : undefined
                       }
                     >
-                      <Piece
-                        isPromoted={piece.isPromoted}
-                        owner={piece.owner}
-                        type={piece.type}
-                      />
+                      <span className="board-piece-wrapper">
+                        <Piece
+                          isPromoted={piece.isPromoted}
+                          owner={piece.owner}
+                          type={piece.type}
+                        />
+                      </span>
                     </span>
                   ) : isTarget ? (
                     <span className="target-dot" aria-hidden="true" />
