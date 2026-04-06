@@ -94,10 +94,18 @@ button:focus-visible {
   font-size: clamp(1.8rem, 3vw, 2.6rem);
 }
 
+.play-meta {
+  margin: 6px 0 0;
+  color: #7a715f;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 .header-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   justify-content: flex-end;
 }
 
@@ -211,8 +219,8 @@ button:focus-visible {
 }
 
 .game-banner {
-  margin-bottom: 20px;
-  padding: 14px 18px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
   border-radius: 18px;
   display: flex;
   justify-content: space-between;
@@ -260,12 +268,18 @@ button:focus-visible {
 
 .board-play-area {
   display: grid;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 8px;
+  min-width: 0;
 }
 
 .hand-layout {
   margin-bottom: 0;
+}
+
+.gameplay-layout {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .interaction-strip {
@@ -307,8 +321,8 @@ button:focus-visible {
     repeating-linear-gradient(96deg, rgba(122, 80, 28, 0.08) 0 7px, rgba(196, 148, 84, 0.04) 7px 15px),
     linear-gradient(180deg, #d8ae70 0%, #c6924d 52%, #b77a34 100%);
   border: 1px solid rgba(105, 73, 28, 0.34);
-  border-radius: 22px;
-  padding: 14px 16px;
+  border-radius: 18px;
+  padding: 8px 10px;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.36),
     inset 0 0 0 1px rgba(255, 236, 201, 0.12),
@@ -334,18 +348,22 @@ button:focus-visible {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .hand-tray-summary {
   display: grid;
-  gap: 2px;
+  gap: 0;
+}
+
+.hand-tray-summary strong {
+  font-size: 0.9rem;
 }
 
 .hand-tray-state {
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 999px;
-  font-size: 0.78rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -362,7 +380,7 @@ button:focus-visible {
 .hand-piece-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 6px;
 }
 
 .hand-piece-button {
@@ -372,13 +390,13 @@ button:focus-visible {
     linear-gradient(180deg, rgba(255, 249, 238, 0.96), rgba(245, 231, 205, 0.98)),
     repeating-linear-gradient(95deg, rgba(138, 95, 39, 0.05) 0 7px, rgba(255, 255, 255, 0.08) 7px 14px);
   color: #1f2933;
-  padding: 8px 12px;
+  padding: 4px 8px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
   cursor: pointer;
-  min-height: 50px;
-  min-width: 90px;
+  min-height: 38px;
+  min-width: 66px;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.72),
     inset 0 -8px 12px rgba(140, 95, 34, 0.06);
@@ -394,8 +412,8 @@ button:focus-visible {
 }
 
 .hand-piece-visual {
-  width: 40px;
-  height: 46px;
+  width: 26px;
+  height: 32px;
   display: inline-grid;
   place-items: center;
   flex: 0 0 auto;
@@ -429,7 +447,7 @@ button:focus-visible {
 }
 
 .hand-piece-count {
-  font-size: 0.9rem;
+  font-size: 0.78rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -830,7 +848,6 @@ button:focus-visible {
 }
 
 .move-history {
-  margin-top: 18px;
   padding: 14px 16px;
   border-radius: 20px;
   background:
@@ -839,6 +856,7 @@ button:focus-visible {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.62),
     0 10px 24px rgba(84, 61, 24, 0.06);
+  min-width: 0;
 }
 
 .move-history-header {
@@ -870,7 +888,7 @@ button:focus-visible {
   padding: 0;
   display: grid;
   gap: 8px;
-  max-height: 220px;
+  max-height: 280px;
   overflow-y: auto;
 }
 
@@ -1027,6 +1045,24 @@ button:focus-visible {
   }
 }
 
+@media (min-width: 860px) {
+  .gameplay-layout {
+    grid-template-columns: minmax(0, 1fr) 248px;
+    align-items: start;
+  }
+
+  .move-history {
+    margin-top: 0;
+    width: 248px;
+    max-width: 248px;
+    align-self: stretch;
+  }
+
+  .move-history-list {
+    max-height: min(52vh, 480px);
+  }
+}
+
 @media (max-width: 560px) {
   .app-shell {
     padding: 8px;
@@ -1082,22 +1118,22 @@ button:focus-visible {
   }
 
   .hand-tray {
-    padding: 12px 14px;
+    padding: 8px 10px;
   }
 
   .hand-piece-list {
-    gap: 10px;
+    gap: 6px;
   }
 
   .hand-piece-button {
     flex: 1 1 calc(33.333% - 10px);
     justify-content: center;
-    padding: 10px 12px;
+    padding: 6px 8px;
   }
 
   .hand-piece-visual {
-    width: 32px;
-    height: 38px;
+    width: 24px;
+    height: 30px;
   }
 
   .board-frame {

@@ -151,69 +151,11 @@ function getBoardPositionFromPoint(clientX: number, clientY: number): Position |
   return { row, col };
 }
 
-function getInteractionHint(args: {
-  selectedPosition: Position | null;
-  selectedHandPiece: HandPieceType | null;
-  showPromotionChoice: boolean;
-  isCpuTurn: boolean;
-  winner: Player | null;
-}): { title: string; detail: string; tone: 'neutral' | 'attention' | 'info' } | null {
-  const {
-    selectedPosition,
-    selectedHandPiece,
-    showPromotionChoice,
-    isCpuTurn,
-    winner,
-  } = args;
-
-  if (winner) {
-    return null;
-  }
-
-  if (showPromotionChoice) {
-    return {
-      title: 'Promotion choice',
-      detail: 'Choose whether to promote before play continues.',
-      tone: 'attention',
-    };
-  }
-
-  if (isCpuTurn) {
-    return {
-      title: 'CPU turn',
-      detail: 'The board and hands are temporarily locked while White is choosing a move.',
-      tone: 'info',
-    };
-  }
-
-  if (selectedHandPiece) {
-    return {
-      title: 'Drop mode',
-      detail: `Place the selected ${selectedHandPiece} on a highlighted square.`,
-      tone: 'attention',
-    };
-  }
-
-  if (selectedPosition) {
-    return {
-      title: 'Move mode',
-      detail: 'Choose one of the highlighted destination squares.',
-      tone: 'neutral',
-    };
-  }
-
-  return {
-    title: 'Ready',
-    detail: 'Select one of the active player\'s pieces or choose a piece from hand.',
-    tone: 'neutral',
-  };
-}
-
 function createStartFlowState(): StartFlowState {
   const savedGame = loadPersistedGameState();
 
   return {
-    requiresChoice: savedGame !== null,
+    requiresChoice: true,
     savedGame,
   };
 }
@@ -324,13 +266,6 @@ function App() {
         .filter(([pieceType, count]) => count > 0 && getLegalDrops(gameState, pieceType).length > 0)
         .map(([pieceType]) => pieceType);
   const canUndo = previousStates.length > 0 && !showPromotionChoice && !isCpuTurn;
-  const interactionHint = getInteractionHint({
-    selectedPosition,
-    selectedHandPiece,
-    showPromotionChoice,
-    isCpuTurn,
-    winner,
-  });
 
   useEffect(() => {
     dragSessionRef.current = dragSession;
@@ -608,9 +543,6 @@ function App() {
     }
 
     setGameMode(nextMode);
-    setGameState(createInitialGameState(setupMode));
-    setPreviousStates([]);
-    resetInteractionState();
   };
 
   const handleSetupModeChange = (nextMode: SetupMode) => {
@@ -619,9 +551,6 @@ function App() {
     }
 
     setSetupMode(nextMode);
-    setGameState(createInitialGameState(nextMode));
-    setPreviousStates([]);
-    resetInteractionState();
   };
 
   const applyMove = (from: Position, to: Position, promote?: boolean) => {
@@ -894,7 +823,10 @@ function App() {
   if (startFlowState.requiresChoice) {
     return (
       <StartPrompt
+        gameMode={gameMode}
+        hasSavedGame={startFlowState.savedGame !== null}
         onContinue={handleContinueSavedGame}
+        onGameModeChange={handleGameModeChange}
         onStartNew={handleStartNewGame}
         onSetupModeChange={handleSetupModeChange}
         setupMode={setupMode}
@@ -907,42 +839,11 @@ function App() {
       <section className={['app-panel', isInteractionLocked ? 'is-locked' : ''].filter(Boolean).join(' ')}>
         <header className="app-header">
           <div>
-            <p className="eyebrow">Local Shogi</p>
+            <p className="eyebrow">Play Screen</p>
             <h1>Shogi App</h1>
+            <p className="play-meta">{`${getGameModeLabel(gameMode)} • ${getSetupModeLabel(setupMode)}`}</p>
           </div>
           <div className="header-actions">
-            <div className="mode-toggle" role="group" aria-label="Game mode">
-              <button
-                className={`mode-button${gameMode === 'local' ? ' is-active' : ''}`}
-                onClick={() => handleGameModeChange('local')}
-                type="button"
-              >
-                Local
-              </button>
-              <button
-                className={`mode-button${gameMode === 'cpu' ? ' is-active' : ''}`}
-                onClick={() => handleGameModeChange('cpu')}
-                type="button"
-              >
-                Vs CPU
-              </button>
-            </div>
-            <div className="mode-toggle" role="group" aria-label="Setup mode">
-              <button
-                className={`mode-button${setupMode === 'standard' ? ' is-active' : ''}`}
-                onClick={() => handleSetupModeChange('standard')}
-                type="button"
-              >
-                Standard
-              </button>
-              <button
-                className={`mode-button${setupMode === 'random' ? ' is-active' : ''}`}
-                onClick={() => handleSetupModeChange('random')}
-                type="button"
-              >
-                Random
-              </button>
-            </div>
             <button
               className="secondary-button"
               disabled={!canUndo}
@@ -960,35 +861,6 @@ function App() {
             </button>
           </div>
         </header>
-
-        <div className="status-bar">
-          <div>
-            <span className="status-label">Turn</span>
-            <strong>{winner ? 'Game Over' : getPlayerLabel(gameState.currentPlayer)}</strong>
-          </div>
-          <div>
-            <span className="status-label">Selected</span>
-            <strong>{getSelectionStatusText(activePiece, selectedHandPiece)}</strong>
-          </div>
-          <div>
-            <span className="status-label">Result</span>
-            <strong>
-              {captureWinner
-                ? `${getPlayerLabel(captureWinner)} wins`
-                : checkmateWinner
-                  ? `${getPlayerLabel(checkmateWinner)} wins by checkmate`
-                  : 'in progress'}
-            </strong>
-          </div>
-          <div>
-            <span className="status-label">Mode</span>
-            <strong>{getGameModeLabel(gameMode)}</strong>
-          </div>
-          <div>
-            <span className="status-label">Setup</span>
-            <strong>{getSetupModeLabel(setupMode)}</strong>
-          </div>
-        </div>
 
         {winner ? (
           <div className="game-banner game-banner-success">
@@ -1011,93 +883,81 @@ function App() {
           </div>
         ) : null}
 
-        {interactionHint ? (
-          <div className={`interaction-strip is-${interactionHint.tone}`}>
-            <strong>{interactionHint.title}</strong>
-            <span>{interactionHint.detail}</span>
-          </div>
-        ) : null}
+        <div className="gameplay-layout">
+          <div className="board-play-area">
+            <div className="hand-layout hand-layout-opponent">
+              {renderHandTray(opponentHandOwner)}
+            </div>
 
-        <div className="board-play-area">
-          <div className="hand-layout hand-layout-opponent">
-            {renderHandTray(opponentHandOwner)}
-          </div>
-
-          <BoardView
-            animatedMove={pieceMotion}
-            board={gameState.board}
-            draggablePositions={draggableBoardPositions}
-            draggedFrom={draggedBoardPosition}
-            interactionDisabled={isInteractionLocked}
-            legalMoves={legalTargets}
-            overlayContent={
-              showPromotionChoice && pendingMove && pendingPromotionPiece ? (
-                <div
-                  className={[
-                    'promotion-choice',
-                    pendingMove.to.row <= 2 ? 'is-below-anchor' : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                  aria-label="Promotion choice"
-                  style={{
-                    '--promotion-col': String(pendingMove.to.col),
-                    '--promotion-row': String(pendingMove.to.row),
-                  } as CSSProperties}
-                >
-                  <span className="promotion-choice-title">Choose the piece face</span>
-                  <div className="promotion-choice-options">
-                    <button
-                      className="promotion-piece-button is-promote"
-                      onClick={() => handlePromotionChoice(true)}
-                      type="button"
-                    >
-                      <span className="promotion-piece-visual">
-                        <PieceView
-                          isPromoted={true}
-                          owner={pendingPromotionPiece.owner}
-                          type={pendingPromotionPiece.type}
-                        />
-                      </span>
-                      <span className="promotion-piece-label">Promote</span>
-                    </button>
-                    <button
-                      className="promotion-piece-button"
-                      onClick={() => handlePromotionChoice(false)}
-                      type="button"
-                    >
-                      <span className="promotion-piece-visual">
-                        <PieceView
-                          isPromoted={false}
-                          owner={pendingPromotionPiece.owner}
-                          type={pendingPromotionPiece.type}
-                        />
-                      </span>
-                      <span className="promotion-piece-label">Keep</span>
-                    </button>
+            <BoardView
+              animatedMove={pieceMotion}
+              board={gameState.board}
+              draggablePositions={draggableBoardPositions}
+              draggedFrom={draggedBoardPosition}
+              interactionDisabled={isInteractionLocked}
+              legalMoves={legalTargets}
+              overlayContent={
+                showPromotionChoice && pendingMove && pendingPromotionPiece ? (
+                  <div
+                    className={[
+                      'promotion-choice',
+                      pendingMove.to.row <= 2 ? 'is-below-anchor' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                    aria-label="Promotion choice"
+                    style={{
+                      '--promotion-col': String(pendingMove.to.col),
+                      '--promotion-row': String(pendingMove.to.row),
+                    } as CSSProperties}
+                  >
+                    <span className="promotion-choice-title">Choose the piece face</span>
+                    <div className="promotion-choice-options">
+                      <button
+                        className="promotion-piece-button is-promote"
+                        onClick={() => handlePromotionChoice(true)}
+                        type="button"
+                      >
+                        <span className="promotion-piece-visual">
+                          <PieceView
+                            isPromoted={true}
+                            owner={pendingPromotionPiece.owner}
+                            type={pendingPromotionPiece.type}
+                          />
+                        </span>
+                        <span className="promotion-piece-label">Promote</span>
+                      </button>
+                      <button
+                        className="promotion-piece-button"
+                        onClick={() => handlePromotionChoice(false)}
+                        type="button"
+                      >
+                        <span className="promotion-piece-visual">
+                          <PieceView
+                            isPromoted={false}
+                            owner={pendingPromotionPiece.owner}
+                            type={pendingPromotionPiece.type}
+                          />
+                        </span>
+                        <span className="promotion-piece-label">Keep</span>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ) : null
-            }
-            onPiecePointerDown={handleBoardPiecePointerDown}
-            onSquareClick={handleSquareClick}
-            selectedPosition={selectedPosition}
-            selectionMode={selectedHandPiece ? 'drop' : selectedPosition ? 'move' : 'idle'}
-          />
+                ) : null
+              }
+              onPiecePointerDown={handleBoardPiecePointerDown}
+              onSquareClick={handleSquareClick}
+              selectedPosition={selectedPosition}
+              selectionMode={selectedHandPiece ? 'drop' : selectedPosition ? 'move' : 'idle'}
+            />
 
-          <div className="hand-layout hand-layout-current">
-            {renderHandTray(currentHandOwner)}
+            <div className="hand-layout hand-layout-current">
+              {renderHandTray(currentHandOwner)}
+            </div>
           </div>
+
+          <MoveHistory history={gameState.history} onExport={handleExportMoves} />
         </div>
-
-        <MoveHistory history={gameState.history} onExport={handleExportMoves} />
-
-        <p className="help-text">
-          Select one of the active player&apos;s pieces, then choose a highlighted square.
-          The app supports standard movement, captures, promotion choice, hand drops,
-          move history, local two-player play, and a simple CPU. Random mode shuffles
-          the back rank symmetrically while keeping pawns, rook, and bishop fixed.
-        </p>
       </section>
 
       {dragSession?.isActive ? (

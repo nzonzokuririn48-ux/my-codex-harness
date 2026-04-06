@@ -51,6 +51,7 @@ export function HandTray({
       className={[
         'hand-tray',
         `owner-${owner}`,
+        owner === 'black' ? 'is-current-side' : 'is-opponent-side',
         isActive ? 'is-active' : '',
         isDisabled ? 'is-disabled' : '',
       ]
@@ -59,7 +60,6 @@ export function HandTray({
     >
       <div className="hand-tray-header">
         <div className="hand-tray-summary">
-          <span className="status-label">Hand</span>
           <strong>{owner === 'black' ? 'Black' : 'White'}</strong>
         </div>
         <span className={`hand-tray-state ${isActive ? 'is-active' : ''}`}>
