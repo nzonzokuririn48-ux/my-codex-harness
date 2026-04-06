@@ -293,11 +293,8 @@ button:focus-visible {
 }
 
 .player-hand-area {
-  margin-top: 120px;
-}
-
-.player-hand-area {
-  align-self: end;
+  margin-top: 180px;
+  align-self: start;
 }
 
 .move-history {
@@ -539,9 +536,8 @@ button:focus-visible {
     linear-gradient(180deg, #d3a35e 0%, #bc823d 54%, #a96d2d 100%);
   border-radius: 24px;
   padding: 12px;
-  border: 1px solid rgba(125, 80, 28, 0.42);
+  border: none;
   box-shadow:
-    0 24px 38px rgba(97, 63, 22, 0.18),
     inset 0 2px 0 rgba(255, 255, 255, 0.18),
     inset 0 -4px 14px rgba(120, 76, 25, 0.22),
     inset 0 10px 24px rgba(255, 234, 198, 0.06);
@@ -579,12 +575,6 @@ button:focus-visible {
   height: 100%;
   z-index: 0;
   pointer-events: none;
-}
-
-.board-grid-border {
-  fill: none;
-  stroke: rgba(70, 40, 12, 0.92);
-  stroke-width: 0.14;
 }
 
 .board-grid-line {
@@ -763,6 +753,7 @@ button:focus-visible {
 
 .svg-piece.owner-white .svg-piece-graphic {
   transform: rotate(180deg);
+  transform-origin: center center;
   filter:
     brightness(0.92)
     saturate(0.85)
