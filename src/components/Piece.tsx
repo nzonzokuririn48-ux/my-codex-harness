@@ -31,7 +31,6 @@ export function Piece({ type, isPromoted, owner }: PieceProps) {
   const highlightGradientId = `${idBase}-highlight`;
   const bottomShadeId = `${idBase}-bottom-shade`;
   const tintGradientId = `${idBase}-player-tint`;
-  const accentGradientId = `${idBase}-accent`;
   const shadowId = `${idBase}-shadow`;
 
   return (
@@ -102,10 +101,6 @@ export function Piece({ type, isPromoted, owner }: PieceProps) {
               stopColor={isWhite ? 'rgba(58,39,16,0.16)' : 'rgba(92,54,16,0.04)'}
             />
           </linearGradient>
-          <linearGradient id={accentGradientId} x1="0%" x2="0%" y1="0%" y2="100%">
-            <stop offset="0%" stopColor="#c54e2d" />
-            <stop offset="100%" stopColor="#8f2715" />
-          </linearGradient>
           <filter id={shadowId} x="-20%" y="-20%" width="140%" height="160%">
             <feDropShadow dx="0" dy="5" floodColor="rgba(58,33,10,0.22)" stdDeviation="4" />
           </filter>
@@ -136,13 +131,6 @@ export function Piece({ type, isPromoted, owner }: PieceProps) {
           fill={`url(#${bottomShadeId})`}
           d="M18 56 L82 56 L86 82 L14 82 Z"
         />
-        {isPromoted ? (
-          <path
-            className="svg-piece-promo-band"
-            d="M34 22 L66 22 L63 31 L37 31 Z"
-            fill={`url(#${accentGradientId})`}
-          />
-        ) : null}
         <path
           className="svg-piece-border"
           d="M50 10 L79 22 L86 80 L14 80 L21 22 Z"

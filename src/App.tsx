@@ -799,8 +799,6 @@ function App() {
   const pendingPromotionPiece = pendingMove
     ? gameState.board[pendingMove.from.row][pendingMove.from.col]
     : null;
-  const currentHandOwner = gameState.currentPlayer;
-  const opponentHandOwner = getOpponent(gameState.currentPlayer);
   const draggedBoardPosition =
     dragSession?.kind === 'board' && dragSession.isActive ? dragSession.from : null;
   const draggedHandPiece =
@@ -886,7 +884,7 @@ function App() {
         <div className="gameplay-layout">
           <div className="board-play-area">
             <div className="hand-layout hand-layout-opponent">
-              {renderHandTray(opponentHandOwner)}
+              {renderHandTray('white')}
             </div>
 
             <BoardView
@@ -952,7 +950,7 @@ function App() {
             />
 
             <div className="hand-layout hand-layout-current">
-              {renderHandTray(currentHandOwner)}
+              {renderHandTray('black')}
             </div>
           </div>
 

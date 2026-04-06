@@ -753,11 +753,6 @@ button:focus-visible {
     0 0 0 rgba(0, 0, 0, 0);
 }
 
-.svg-piece-promo-band {
-  stroke: rgba(255, 227, 214, 0.3);
-  stroke-width: 1;
-}
-
 .svg-piece.is-promoted .svg-piece-shell {
   stroke: rgba(139, 39, 21, 0.72);
 }
