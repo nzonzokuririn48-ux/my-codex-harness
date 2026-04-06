@@ -263,22 +263,21 @@ button:focus-visible {
 
 .gameplay-layout {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 240px minmax(0, 600px) 240px;
   gap: 16px;
   align-items: start;
-  justify-items: center;
+  justify-content: center;
 }
 
 .left-panel,
 .right-panel {
   display: grid;
+  width: 240px;
   align-items: start;
-  width: 200px;
-  min-width: 180px;
 }
 
 .left-panel {
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto;
   gap: 16px;
 }
 
@@ -290,7 +289,7 @@ button:focus-visible {
 .center-board {
   display: grid;
   justify-items: center;
-  width: min(100%, 600px);
+  width: 600px;
   padding: 20px;
   border-radius: 28px;
   background:
@@ -307,14 +306,14 @@ button:focus-visible {
 
 .move-history {
   display: grid;
-  min-height: 320px;
-  max-height: 100%;
+  grid-template-rows: auto 1fr;
+  height: 360px;
   overflow: hidden;
 }
 
 .move-history-list {
-  max-height: 100%;
   overflow-y: auto;
+  padding-right: 6px;
 }
 
 
@@ -382,25 +381,25 @@ button:focus-visible {
 .hand-tray {
   display: grid;
   grid-template-rows: auto 1fr;
-  gap: 12px;
-  width: 100%;
-  min-height: 520px;
-  max-height: 100%;
-  padding: 16px 14px;
-  border-radius: 26px;
-  background: linear-gradient(180deg, #e2c18a 0%, #c4955f 100%);
-  border: 1px solid rgba(98, 64, 25, 0.24);
+  gap: 14px;
+  width: 240px;
+  height: 560px;
+  padding: 18px 16px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #d6b47b 0%, #b78c5a 100%);
+  border: 1px solid rgba(95, 60, 25, 0.32);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.24),
-    inset 0 -18px 24px rgba(101, 62, 26, 0.16);
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -16px 24px rgba(101, 64, 30, 0.16);
+  overflow: hidden;
 }
 
 .hand-tray.is-active {
-  border-color: rgba(110, 71, 28, 0.54);
+  border-color: rgba(122, 79, 30, 0.52);
 }
 
 .hand-tray.is-disabled {
-  opacity: 0.82;
+  opacity: 0.84;
 }
 
 .hand-tray-header {
@@ -439,28 +438,29 @@ button:focus-visible {
 
 .hand-piece-list {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+  max-height: calc(100% - 24px);
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .hand-piece-button {
-  border: 1px solid rgba(89, 57, 28, 0.2);
+  border: 1px solid rgba(93, 60, 27, 0.26);
   border-radius: 14px;
-  background:
-    linear-gradient(180deg, rgba(255, 248, 230, 0.92), rgba(241, 217, 179, 0.96));
+  background: rgba(255, 249, 237, 0.94);
   color: #1f2933;
-  padding: 6px 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  padding: 8px;
+  display: grid;
+  place-items: center;
   cursor: pointer;
-  min-height: 46px;
+  min-height: 60px;
   width: 100%;
   min-width: 0;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.68),
-    inset 0 -6px 10px rgba(117, 74, 30, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -6px 10px rgba(125, 81, 35, 0.08);
   transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease, opacity 120ms ease;
 }
 
@@ -1087,17 +1087,9 @@ button:focus-visible {
   }
 
   .left-panel {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
     gap: 12px;
-  }
-
-  .opponent-hand-area {
-    grid-column: 1;
-  }
-
-  .move-history {
-    grid-column: 2;
   }
 
   .right-panel {
@@ -1107,14 +1099,14 @@ button:focus-visible {
 
 @media (min-width: 980px) {
   .gameplay-layout {
-    grid-template-columns: 220px 1fr 220px;
+    grid-template-columns: 240px 600px 240px;
     align-items: start;
     justify-content: center;
   }
 
   .left-panel,
   .right-panel {
-    width: 220px;
+    width: 240px;
   }
 
   .center-board {

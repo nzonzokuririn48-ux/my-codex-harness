@@ -66,53 +66,52 @@ export function HandTray({
       </div>
 
       <div className="hand-piece-list">
-        {HAND_PIECE_ORDER.map((pieceType) => {
-          const count = hand[pieceType];
-          const isSelected = selectedPiece === pieceType;
-          const isDraggable = draggablePieceTypes.includes(pieceType);
-          const isDragOrigin = draggedPieceType === pieceType;
+        {HAND_PIECE_ORDER.flatMap((pieceType) =>
+          Array.from({ length: hand[pieceType] }, (_, index) => {
+            const isSelected = selectedPiece === pieceType;
+            const isDraggable = draggablePieceTypes.includes(pieceType);
+            const isDragOrigin = draggedPieceType === pieceType;
 
-          return (
-            <button
-              key={pieceType}
-              className={[
-                'hand-piece-button',
-                isSelected ? 'is-selected' : '',
-                count > 0 && isActive && !isDisabled ? 'is-available' : '',
-                count === 0 ? 'is-empty' : '',
-                isDraggable ? 'is-draggable' : '',
-                isDragOrigin ? 'is-drag-origin' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-              disabled={isDisabled || !isActive || count === 0}
-              onClick={() => onSelectPiece(pieceType)}
-              onPointerDown={(event) => {
-                if (!isDraggable) {
-                  return;
-                }
+            return (
+              <button
+                key={`${pieceType}-${index}`}
+                className={[
+                  'hand-piece-button',
+                  isSelected ? 'is-selected' : '',
+                  isActive && !isDisabled ? 'is-available' : '',
+                  isDraggable ? 'is-draggable' : '',
+                  isDragOrigin ? 'is-drag-origin' : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                disabled={isDisabled || !isActive}
+                onClick={() => onSelectPiece(pieceType)}
+                onPointerDown={(event) => {
+                  if (!isDraggable) {
+                    return;
+                  }
 
-                onPiecePointerDown(pieceType, owner, {
-                  pointerId: event.pointerId,
-                  clientX: event.clientX,
-                  clientY: event.clientY,
-                  button: event.button,
-                  isPrimary: event.isPrimary,
-                });
-              }}
-              type="button"
-            >
-              <span className="hand-piece-visual">
-                <Piece
-                  isPromoted={false}
-                  owner={owner}
-                  type={pieceType}
-                />
-              </span>
-              <span className="hand-piece-count">x{count}</span>
-            </button>
-          );
-        })}
+                  onPiecePointerDown(pieceType, owner, {
+                    pointerId: event.pointerId,
+                    clientX: event.clientX,
+                    clientY: event.clientY,
+                    button: event.button,
+                    isPrimary: event.isPrimary,
+                  });
+                }}
+                type="button"
+              >
+                <span className="hand-piece-visual">
+                  <Piece
+                    isPromoted={false}
+                    owner={owner}
+                    type={pieceType}
+                  />
+                </span>
+              </button>
+            );
+          }),
+        )}
       </div>
     </section>
   );
