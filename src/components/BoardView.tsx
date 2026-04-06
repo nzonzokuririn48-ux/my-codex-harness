@@ -70,7 +70,7 @@ export function BoardView({
           preserveAspectRatio="none"
           viewBox="0 0 9 9"
         >
-          <rect className="board-grid-border" x="0.07" y="0.07" width="8.86" height="8.86" />
+          <rect className="board-grid-border" x="0.5" y="0.5" width="8" height="8" />
           {GRID_OFFSETS.map((offset) => (
             <line
               key={`vertical-${offset}`}
