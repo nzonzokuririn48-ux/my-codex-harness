@@ -25,17 +25,16 @@ export function formatMoveHistoryPosition(position: MoveHistoryEntry['to']): str
 }
 
 export function formatMoveHistoryEntry(entry: MoveHistoryEntry): string {
+  const destination = formatMoveHistoryPosition(entry.to);
   const pieceLabel = getPieceKanji(entry.pieceType, entry.isPromoted);
 
   if (entry.from === 'drop') {
-    return `${pieceLabel}\u6253 ${formatMoveHistoryPosition(entry.to)}`;
+    return `${destination}${pieceLabel}\u6253`;
   }
 
-  const captureSuffix = entry.capturedPieceType
-    ? ` \u53d6${PIECE_KANJI[entry.capturedPieceType].base}`
-    : '';
+  const captureSuffix = entry.capturedPieceType ? '\u53d6' : '';
 
-  return `${pieceLabel} ${formatMoveHistoryPosition(entry.from)}\u2192${formatMoveHistoryPosition(entry.to)}${captureSuffix}`;
+  return `${destination}${pieceLabel}${captureSuffix}`;
 }
 
 export function buildMoveHistoryExportText(history: MoveHistoryEntry[]): string {
